@@ -1,75 +1,59 @@
+Ready to code?                                                                                                                   
+
+ Here is Claude's plan:                                                                                                                                                                                                                                                                                                       
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
  You Are Next - Implementation Plan                                                                                                                                                                                                                                                                                           
                                                         
  Context
 
- Build an over-the-shoulder 3D multiplayer horror game where 2-4 players run through a dark forest while being chased by a monster. The monster catches players and forces them into annoying text arguments -- win and you're freed, lose and you're eaten. The game uses BabylonJS for 3D rendering, PartyKit for real-time
-  multiplayer, and Next.js on Vercel for hosting. It's invite-only for friends.
+ Build an over-the-shoulder 3D multiplayer horror game where 2-4 players run through a dark forest while being chased by a monster. The monster catches players and forces them into annoying text arguments -- win and you're freed, lose and you're eaten. Built with BabylonJS (3D), PartyKit (multiplayer), Vite + React
+ (UI), deployed on Vercel. Invite-only for friends.
 
- The developer wants to iterate solo first (Phases 1-3) before enabling multiplayer (Phase 4+). Monster chat starts as a stub and gets Azure Foundry LLM integration later.
+ Developer iterates solo first (Phases 1-3) before enabling multiplayer (Phase 4+). Monster chat starts as a keyword-matching stub, gets Azure Foundry LLM later.
 
  ---
  Project Structure
 
  you-are-next/
- ├── src/                          # Next.js app (App Router)
- │   ├── app/
- │   │   ├── layout.tsx
- │   │   ├── page.tsx              # Landing / name entry
- │   │   ├── lobby/[roomId]/page.tsx
- │   │   └── play/[roomId]/page.tsx  # Game canvas
+ ├── src/
+ │   ├── main.tsx                  # React entry point
+ │   ├── App.tsx                   # Router: landing, lobby, play
  │   ├── components/
- │   │   ├── BabylonCanvas.tsx     # React <-> BabylonJS bridge
- │   │   ├── LobbyUI.tsx
- │   │   ├── HUD.tsx
+ │   │   ├── BabylonCanvas.tsx     # Canvas + Game lifecycle (useEffect/useRef)
  │   │   ├── MonsterChat.tsx       # Argument overlay
- │   │   ├── GameOverScreen.tsx
- │   │   └── InviteGate.tsx
+ │   │   ├── HUD.tsx               # Distance to goal, game state
+ │   │   └── GameOverScreen.tsx
  │   ├── hooks/
- │   │   ├── useGameRoom.ts       # PartySocket connection
- │   │   └── useGameEngine.ts     # BabylonJS lifecycle
- │   └── styles/globals.css
+ │   │   └── useGameRoom.ts        # PartySocket connection (Phase 4)
+ │   └── styles.css                # Plain CSS for overlays
  │
- ├── game/                         # Shared logic (client + server)
- │   ├── types.ts                  # GameState, GameAction, Player, Monster
- │   ├── logic.ts                  # gameUpdater() reducer
- │   ├── constants.ts              # MAP_WIDTH, SPEEDS, etc.
- │   └── chat.ts                   # Monster chat backend interface + stub
+ ├── game/                          # Shared logic (client + server, pure TS)
+ │   ├── types.ts                   # GameState, GameAction, Player, Monster
+ │   ├── logic.ts                   # gameUpdater() reducer
+ │   ├── constants.ts               # MAP_WIDTH, SPEEDS, etc.
+ │   └── chat.ts                    # Monster chat stub + pluggable interface
  │
- ├── party/                        # PartyKit server
- │   ├── index.ts                  # Party.Server implementation
- │   └── monsterLLM.ts            # Azure OpenAI client (Phase 5)
+ ├── party/                         # PartyKit server
+ │   ├── index.ts                   # Party.Server implementation
+ │   └── monsterLLM.ts             # Azure OpenAI client (Phase 5)
  │
- ├── engine/                       # BabylonJS code (pure TS, no React)
- │   ├── Game.ts                   # State machine, render loop
- │   ├── scenes/GameScene.ts
- │   ├── entities/
- │   │   ├── PlayerController.ts   # Camera, input, movement
- │   │   ├── RemotePlayer.ts       # Networked player puppet
- │   │   ├── Monster.ts            # Monster mesh + AI
- │   │   └── AIPlayer.ts           # Bot behavior
- │   ├── world/
- │   │   ├── ForestMap.ts          # Ground, trees, rocks, boundaries
- │   │   ├── Lighting.ts           # Lights, fog, shadows
- │   │   └── Skybox.ts
- │   ├── systems/
- │   │   ├── InputManager.ts
- │   │   ├── CollisionSystem.ts
- │   │   ├── CatchSystem.ts
- │   │   ├── AnimationSystem.ts
- │   │   ├── AudioManager.ts
- │   │   └── PostProcessing.ts
- │   ├── ui/DebugOverlay.ts
- │   └── utils/
- │       ├── MeshFactory.ts        # Primitive tree/rock/wall helpers
- │       └── MaterialFactory.ts    # Dark PBR material presets
+ ├── engine/                        # BabylonJS code (pure TS, no React)
+ │   ├── Game.ts                    # State machine, render loop, event callbacks
+ │   ├── PlayerController.ts        # Camera hierarchy, input, movement, collisions
+ │   ├── RemotePlayer.ts            # Networked player puppet (Phase 4)
+ │   ├── Monster.ts                 # Monster mesh + chase AI
+ │   ├── AIPlayer.ts                # Bot behavior (Phase 5)
+ │   ├── ForestMap.ts               # Ground, trees, rocks, boundaries
+ │   ├── Lighting.ts                # Lights, fog, shadows, post-processing
+ │   └── MeshFactory.ts             # Primitive mesh + material helpers
  │
  ├── public/
- │   ├── textures/
- │   └── sounds/
+ │   ├── textures/                  # 64x64 low-res textures (Phase 3)
+ │   └── sounds/                    # Audio files (Phase 3)
  │
+ ├── index.html                     # Vite entry
+ ├── vite.config.ts
  ├── partykit.json
- ├── next.config.js
- ├── tailwind.config.ts
  ├── tsconfig.json
  ├── package.json
  ├── .env.example
@@ -79,50 +63,48 @@
  Environment Variables
 
  # PartyKit
- NEXT_PUBLIC_PARTYKIT_HOST=127.0.0.1:1999  # Local dev
- # NEXT_PUBLIC_PARTYKIT_HOST=you-are-next.USERNAME.partykit.dev  # Production
+ VITE_PARTYKIT_HOST=127.0.0.1:1999
+ # Production: VITE_PARTYKIT_HOST=you-are-next.USERNAME.partykit.dev
 
- # Invite System
- INVITE_SECRET=change-me-to-a-random-string
+ # Invite System (set on PartyKit server via `npx partykit env add`)
+ # INVITE_SECRET=change-me-to-a-random-string
 
- # Azure Foundry LLM (Phase 5 -- leave blank until ready)
- AZURE_OPENAI_ENDPOINT=
- AZURE_OPENAI_API_KEY=
- AZURE_OPENAI_DEPLOYMENT_NAME=
- AZURE_OPENAI_API_VERSION=2024-12-01-preview
+ # Azure Foundry LLM (Phase 5 -- set on PartyKit server, leave blank until ready)
+ # AZURE_OPENAI_ENDPOINT=https://YOUR_RESOURCE.openai.azure.com
+ # AZURE_OPENAI_API_KEY=
+ # AZURE_OPENAI_DEPLOYMENT_NAME=
+ # AZURE_OPENAI_API_VERSION=2024-12-01-preview
 
  # Debug
- NEXT_PUBLIC_DEBUG=false
+ VITE_DEBUG=false
 
- Note: Azure credentials also need to be set on PartyKit via npx partykit env add AZURE_OPENAI_API_KEY for the server to access them.
+ Only VITE_PARTYKIT_HOST and VITE_DEBUG are client-side. Everything else lives on the PartyKit server (set via npx partykit env add KEY value).
 
  ---
  Dependencies
 
  {
    "dependencies": {
-     "next": "^14.2",
-     "react": "^18.3",
-     "react-dom": "^18.3",
+     "react": "^19.0",
+     "react-dom": "^19.0",
+     "react-router-dom": "^7.0",
      "@babylonjs/core": "^7.0",
      "@babylonjs/loaders": "^7.0",
      "@babylonjs/materials": "^7.0",
      "partysocket": "^1.0",
-     "nanoid": "^5.0",
-     "clsx": "^2.1"
+     "nanoid": "^5.0"
    },
    "devDependencies": {
      "partykit": "^0.0.108",
+     "vite": "^6.0",
+     "@vitejs/plugin-react": "^4.0",
      "typescript": "^5.5",
-     "@types/react": "^18",
-     "@types/react-dom": "^18",
-     "tailwindcss": "^3.4",
-     "postcss": "^8.4",
-     "autoprefixer": "^10.4",
-     "eslint": "^8",
-     "eslint-config-next": "^14"
+     "@types/react": "^19",
+     "@types/react-dom": "^19"
    }
  }
+
+ No Tailwind (game UI is minimal, plain CSS is fine), no ESLint config packages (can add later if wanted).
 
  ---
  Phase 1: Project Scaffolding & Core 3D Engine (Single-Player)
@@ -131,67 +113,65 @@
 
  Work
 
- 1. Scaffold Next.js app with TypeScript + Tailwind
- 2. Configure next.config.js for BabylonJS (transpilePackages, webpack fs: false fallback)
- 3. Create BabylonCanvas.tsx with dynamic(() => import(...), { ssr: false }) -- BabylonJS needs window
+ 1. Scaffold Vite + React + TypeScript project (index.html, vite.config.ts, tsconfig.json)
+ 2. Create src/App.tsx with react-router: / (landing) and /play (game)
+ 3. Create src/components/BabylonCanvas.tsx:
+   - useRef for canvas element, useEffect to create/dispose Game instance
+   - No SSR workarounds needed (Vite is client-only)
  4. Build engine/Game.ts state machine (LOADING -> PLAYING -> PAUSED -> GAME_OVER)
- 5. Build engine/entities/PlayerController.ts:
-   - 3-level camera hierarchy: camRoot (Y rotation) -> yTilt (pitch) -> UniversalCamera (offset behind player)
-   - Camera 12 units behind, FOV 0.8, slight downward tilt
-   - WASD movement relative to camera direction
-   - mesh.moveWithCollisions() for physics
- 6. Build engine/world/ForestMap.ts:
+   - Creates Engine, Scene, runs render loop
+   - Exposes event callbacks for React integration (onPlayerCaught, onGameOver, etc.)
+ 5. Build engine/PlayerController.ts:
+   - 3-level camera hierarchy: camRoot (Y rotation) -> yTilt (pitch) -> UniversalCamera (12 units behind)
+   - WASD input via ActionManager, movement relative to camera direction
+   - mesh.moveWithCollisions() for collision, raycast for ground detection
+ 6. Build engine/ForestMap.ts:
    - Rectangular ground (100 wide x 300 deep)
-   - ~150 primitive trees (cylinder trunk + sphere canopy) densely packed, narrow winding paths through
+   - ~150 primitive trees (cylinder trunk + sphere canopy), densely packed with narrow winding paths
    - Invisible boundary walls on 4 edges
    - Start zone at z=-140, finish zone at z=+140
- 7. Build engine/world/Lighting.ts: hemispheric light + exponential fog (density 0.02, near-black color)
- 8. Build engine/systems/InputManager.ts: polls keyboard state via ActionManager
- 9. Build engine/systems/CollisionSystem.ts: raycast ground detection
- 10. Build engine/ui/DebugOverlay.ts: FPS + player Z position
- 11. Create game/constants.ts and game/types.ts with initial values
- 12. Create stub party/index.ts (logs connections, does nothing)
- 13. Create partykit.json, .env.example, .gitignore
+ 7. Build engine/Lighting.ts: hemispheric light + exponential fog (density 0.02, near-black)
+ 8. Build engine/MeshFactory.ts: createTree(), createRock(), createWall() + dark PBR materials
+ 9. Create game/constants.ts and game/types.ts with initial values
+ 10. Create stub party/index.ts, partykit.json, .env.example, .gitignore
 
  Testable
 
- - npm run dev -> navigate to localhost:3000 -> click Play
- - Dark foggy 3D forest visible with primitive trees
+ - npm run dev -> localhost:5173 -> click Play
+ - Dark foggy forest with primitive trees
  - WASD moves player, camera follows behind
- - Player can run from one end of map to the other
- - Boundary walls prevent leaving the map
+ - Run from one end to the other, boundary walls work
  - Console logs when player crosses finish zone
 
  ---
  Phase 2: Game Mechanics (Monster, Catching, Chat Stub)
 
- Goal: Monster chases player. Getting caught triggers a text argument with stub responses. Full single-player game loop.
+ Goal: Monster chases player. Getting caught triggers a text argument. Full single-player game loop.
 
  Work
 
- 1. Build engine/entities/Monster.ts:
-   - Mesh: tall dark cylinder + glowing red sphere eyes
-   - AI states: PATROL -> CHASE (when player within 40 units)
-   - Moves toward nearest player at slightly less than player speed
- 2. Build engine/systems/CatchSystem.ts: proximity check each frame, emits "caught" event
- 3. Build game/chat.ts: stub backend with pre-written monster taunts + keyword-based scoring
-   - 3 rounds per argument (quick and tense), keyword match for points, total >= threshold = win
- 4. Build game/logic.ts: gameUpdater() reducer with PLAYER_CAUGHT, CHAT_MESSAGE, ARGUMENT_WON/LOST
- 5. Build src/components/MonsterChat.tsx: fullscreen dark overlay, chat log, text input, timer
- 6. Build src/components/HUD.tsx: game state + distance to goal
- 7. Build src/components/GameOverScreen.tsx: win/lose screen
- 8. Update engine/Game.ts: add ARGUMENT and GAME_OVER states
- 9. Wire React <-> BabylonJS communication: Game exposes onPlayerCaught, onGameOver callbacks; React calls game.resumeChase() or game.playerEaten()
+ 1. Build engine/Monster.ts:
+   - Mesh: tall dark cylinder + glowing red sphere eyes (primitives)
+   - AI states: PATROL -> CHASE (player within 40 units)
+   - Moves toward player at slightly less than player speed
+ 2. Build game/chat.ts: stub with pre-written monster taunts + keyword-based scoring
+   - 3 rounds, keyword match for points, threshold determines win/lose
+ 3. Build game/logic.ts: gameUpdater() reducer (PLAYER_CAUGHT, CHAT_MESSAGE, ARGUMENT_WON/LOST)
+ 4. Build src/components/MonsterChat.tsx: fullscreen dark overlay, chat log, text input, timer
+ 5. Build src/components/HUD.tsx: game phase + distance to goal
+ 6. Build src/components/GameOverScreen.tsx: win/lose result
+ 7. Update engine/Game.ts: add ARGUMENT and GAME_OVER states, freeze/resume logic
+ 8. Wire React <-> BabylonJS: Game fires callbacks, React renders overlays, React calls game.resumeChase() / game.playerEaten()
 
  Testable
 
- - Monster appears, patrols, then chases player
+ - Monster patrols, then chases when close
  - Getting caught opens chat overlay, game freezes
- - Player types responses, monster has pre-written taunts
- - Winning closes chat, chase resumes (can be caught again)
- - Losing shows eaten state (camera follows monster, player becomes "monster assistant")
- - Reaching far end triggers win screen
- - Full loop: start -> chase -> argument(s) -> win or lose
+ - Type responses, monster has pre-written taunts
+ - Win -> freed, chase resumes (can be caught again)
+ - Lose -> eaten, camera observes monster
+ - Reach far end -> win screen
+ - Full loop works end-to-end
 
  ---
  Phase 3: Polish & Atmosphere (Quake Aesthetic)
@@ -200,60 +180,54 @@
 
  Work
 
- 1. Update MaterialFactory.ts: low-res textures (64x64) with nearest-neighbor filtering, high roughness (0.95), zero metallic, dark albedo colors
+ 1. Update MeshFactory.ts: low-res textures (64x64) with nearest-neighbor filtering, high roughness, dark albedo
  2. Update ForestMap.ts: better tree placement, fallen logs, rocks, more organic layout
- 3. Update Lighting.ts: deeper fog (density ~0.025), flickering point lights, shadow generator
- 4. Build engine/world/Skybox.ts: pure black or dark gradient
- 5. Build engine/systems/PostProcessing.ts: film grain shader + vignette
- 6. Build engine/systems/AnimationSystem.ts: player run/idle, monster walk/lunge state machine
- 7. Build engine/systems/AudioManager.ts: ambient forest loop, heartbeat on monster proximity, footsteps, catch sting
- 8. Update PlayerController.ts: head bob while running, camera shake on catch
- 9. Update Monster.ts: multi-primitive composite mesh, glowing eyes, improved chase behavior
- 10. Update MonsterChat.tsx: horror-themed styling, typewriter text effect, screen shake
- 11. Add textures to public/textures/ (tiling dirt, bark, rock -- 64x64 for Quake feel)
- 12. Add sounds to public/sounds/
+ 3. Update Lighting.ts: deeper fog, flickering point lights, shadow generator, film grain + vignette post-processing
+ 4. Update PlayerController.ts: head bob while running, camera shake on catch
+ 5. Update Monster.ts: multi-primitive composite mesh, improved chase behavior
+ 6. Add audio: ambient forest loop, heartbeat on monster proximity, footsteps, catch sting (BabylonJS Sound class)
+ 7. Update MonsterChat.tsx: horror styling, typewriter text effect
+ 8. Add textures to public/textures/, sounds to public/sounds/
 
  Testable
 
- - Fog limits visibility to ~30 units, creating tension
- - Monster audible before visible (spatial audio heartbeat)
- - Film grain + vignette add retro horror feel
- - Smooth player/monster animations
- - Chat overlay has horror theming with typewriter effect
+ - Fog limits visibility to ~30 units
+ - Monster audible before visible (spatial heartbeat)
+ - Film grain + vignette give retro horror feel
+ - Chat overlay has horror theming
  - Iterate on feel: fog density, light placement, audio levels
 
  ---
  Phase 4: Multiplayer (PartyKit)
 
- Goal: 2-4 players in the same room, all see each other, all watch arguments.
+ Goal: 2-4 players in the same room, see each other, watch arguments together.
 
  Work
 
- 1. Expand game/types.ts: full GameState with players: Record<string, PlayerState>, MonsterState, ChatState, phase management
- 2. Expand game/logic.ts: full multiplayer gameUpdater() with all action types
+ 1. Expand game/types.ts: full GameState with players: Record<string, PlayerState>, MonsterState, ChatState
+ 2. Expand game/logic.ts: multiplayer gameUpdater() with all action types
  3. Rewrite party/index.ts: authoritative server
-   - Monster AI runs server-side at 20Hz tick
+   - Monster AI server-side at 20Hz tick
    - Server-authoritative catch detection
-   - Client-authoritative player movement (friends-only, no cheating concern)
+   - Client-authoritative player movement (friends-only)
    - Full state broadcast at 20Hz
- 4. Build src/hooks/useGameRoom.ts: usePartySocket hook, dispatches actions, receives state
- 5. Build engine/entities/RemotePlayer.ts: interpolated puppet driven by network state
- 6. Update src/app/page.tsx: name entry + create/join room
- 7. Build src/app/lobby/[roomId]/page.tsx + LobbyUI.tsx: player list, ready states, start button
- 8. Update MonsterChat.tsx: all players see chat, only caught player types
- 9. Implement "monster assistant" role for eaten players:
-   - Eaten players' camera follows the monster
-   - They get a simple UI to influence monster behavior: tap directional hints or a "speed boost" button on cooldown
-   - Server applies eaten player inputs as slight monster steering/speed nudges
- 10. Wire BabylonCanvas.tsx to useGameRoom -- feed network state to Game, emit local state to socket
+ 4. Build src/hooks/useGameRoom.ts: PartySocket connection, dispatch, state sync
+ 5. Build engine/RemotePlayer.ts: interpolated puppet driven by network state
+ 6. Update src/App.tsx: add /lobby/:roomId route with name entry, player list, start button
+ 7. Update MonsterChat.tsx: all players see chat, only caught player types
+ 8. Implement "monster assistant" for eaten players:
+   - Camera follows monster
+   - Simple UI: directional hints + speed boost button on cooldown
+   - Server applies as slight monster steering/speed nudges
+ 9. Wire BabylonCanvas to useGameRoom
 
  Testable
 
  - Two browser tabs, different names, same room
- - Both players visible in forest, see each other move
+ - Both players visible, see each other move
  - Monster chases nearest player
- - Catch pauses game for all, everyone sees chat
- - Only caught player can type
+ - Catch pauses for all, everyone sees chat, only caught player types
+ - Eaten players can nudge monster
  - Game ends correctly (all eaten or all escaped)
 
  ---
@@ -263,53 +237,53 @@
 
  Work
 
- 1. Build engine/entities/AIPlayer.ts + server-side AI simulation in party/index.ts:
+ 1. Build engine/AIPlayer.ts + server-side simulation in party/index.ts:
    - Bots move toward goal with lateral wobble
    - Evasion when targeted by monster
-   - Simple obstacle nudging (no complex pathfinding)
    - AI auto-loses arguments (pre-written dumb responses)
  2. Build party/monsterLLM.ts: Azure OpenAI client
-   - System prompt: annoying, persistent, darkly humorous monster personality
-   - 3 rounds, LLM scores each player response 1-10, average >= 6 = win
-   - JSON response format: { "message": "...", "score": 7 }
- 3. Update game/chat.ts: pluggable backend interface -- picks LLM if Azure vars configured, stub otherwise
+   - System prompt: annoying, persistent, darkly humorous monster
+   - 3 rounds, LLM scores each response 1-10, average >= 6 = win
+   - JSON response: { "message": "...", "score": 7 }
+ 3. Update game/chat.ts: picks LLM if Azure vars configured, stub otherwise
 
  Testable
 
- - Solo game spawns 3 AI bots with natural-looking movement
+ - Solo game spawns 3 AI bots with natural movement
  - AI bots get caught and lose arguments
- - With Azure vars: monster produces dynamic, context-aware responses
- - Without Azure vars: stub still works (graceful fallback)
+ - With Azure vars: dynamic LLM responses
+ - Without Azure vars: stub still works
 
  ---
  Phase 6: Deployment & Invite System
 
- Goal: Live on Vercel + PartyKit, invite-only access.
+ Goal: Live on Vercel + PartyKit, invite-only.
 
  Work
 
- 1. Build src/app/api/invite/generate/route.ts: HMAC-based self-validating codes (no DB needed)
- 2. Build src/app/api/invite/validate/route.ts: validates code, sets httpOnly cookie
- 3. Build src/components/InviteGate.tsx: code input on landing page
- 4. Build src/middleware.ts: checks invite cookie on /lobby/* and /play/* routes
- 5. Deploy PartyKit: npx partykit deploy + set env vars with npx partykit env add
- 6. Deploy to Vercel: connect GitHub repo, set env vars in dashboard
- 7. Generate invite codes and share with friends
+ 1. Invite validation handled by PartyKit server in onConnect:
+   - Player sends invite code with connection request (as query param)
+   - Server validates HMAC-based self-validating code, rejects invalid
+   - No separate API routes, middleware, or cookies needed
+ 2. Code generation: a simple script or PartyKit HTTP endpoint protected by admin secret
+ 3. Update landing page: invite code input before room join
+ 4. Deploy PartyKit: npx partykit deploy + env vars
+ 5. Deploy to Vercel: vite build -> static output, connect repo
+ 6. Generate invite codes and share with friends
 
  Testable
 
- - Production URL requires invite code to proceed
- - Valid code stored in cookie, persists across sessions
- - Full multiplayer game works over the internet
- - Share room URL with friend who also has invite code
+ - Production URL requires invite code to join a room
+ - Invalid codes are rejected at WebSocket connection time
+ - Full multiplayer works over the internet
  - AI bots fill empty slots, monster chat works
 
  ---
  Verification Plan
 
- After each phase, run:
+ After each phase:
  1. npm run dev (and npx partykit dev for Phase 4+)
- 2. Play through the game end-to-end manually
+ 2. Play through end-to-end manually
  3. Check browser console for errors
- 4. For multiplayer: test with 2+ browser tabs
- 5. For deployment: test production URLs with invite flow
+ 4. Multiplayer: test with 2+ browser tabs
+ 5. Deployment: test production URLs with invite codes
