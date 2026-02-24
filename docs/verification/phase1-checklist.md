@@ -78,7 +78,7 @@ Results:
 
 1. Run `npm run dev`
 2. Go to created localhost server
-3. Use debuging tools including @babylonjs/inspector, spectorjs, Playwright MCP, Chrome DevTools MCP
+3. Use debuging tools including babylonjs/inspector, spectorjs, Playwright MCP, Chrome DevTools MCP
 4. Verify movement/camera/collision scenarios
 5. Traverse to finish zone and verify console logs
 6. Run `npm run verify:phase1:runtime-smoke` for automated runtime regression checks
