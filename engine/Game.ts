@@ -181,6 +181,9 @@ export class Game {
         `Monster: ${this._monster.state}\n` +
         `X: ${pos.x.toFixed(1)}\n` +
         `Z: ${pos.z.toFixed(1)}\n` +
+        `Look: ${this._player.isPointerLocked ? "locked" : "free"}\n` +
+        `Yaw: ${this._player.yaw.toFixed(2)}\n` +
+        `Pitch: ${this._player.pitch.toFixed(2)}\n` +
         `Progress: ${progress}%\n` +
         `Catch Grace: ${(graceMs / 1000).toFixed(1)}s`
     );
@@ -323,6 +326,7 @@ export class Game {
     this._devDebugCleanup?.();
     this._devDebugCleanup = null;
     this._engine.stopRenderLoop();
+    this._player?.dispose();
     this._monster?.dispose();
     this._scene?.dispose();
     resetMaterialCache();

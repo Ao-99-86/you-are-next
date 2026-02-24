@@ -12,6 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run build` — Production build to `dist/`
 - `npm run verify:phase2:static` — Phase 2 static gate (`typecheck` + `build`)
 - `npm run verify:phase2:runtime-smoke` — Automated Phase 2 runtime branch smoke test
+- `npm run verify:phase25:static` — Phase 2.5 static gate (`typecheck` + `build`)
+- `npm run verify:phase25:runtime-smoke` — Automated Phase 2.5 controls runtime smoke test
 - `npm run party:dev` — PartyKit dev server (port 1999, needed for multiplayer)
 - `npx tsc --noEmit` — Type-check (party/ is excluded; it's built by PartyKit separately)
 
@@ -22,7 +24,7 @@ Three independent code layers that communicate through callbacks and shared type
 **`engine/`** — Pure TypeScript BabylonJS code (no React). This is the 3D game engine.
 - `Game.ts` is the orchestrator: state machine (LOADING/PLAYING/ARGUMENT/GAME_OVER), render loop, and callback hooks for React (`onPlayerCaught`, `onGameOver`, `onDebug`).
 - `Monster.ts` owns the primitive monster mesh and patrol/chase movement state.
-- `PlayerController.ts` owns the camera hierarchy (camRoot → yTilt → UniversalCamera) and WASD movement with `moveWithCollisions()`.
+- `PlayerController.ts` owns the camera hierarchy (camRoot → yTilt → UniversalCamera), WASD strafe movement, pointer-lock mouse look, and `moveWithCollisions()`.
 - `ForestMap.ts` procedurally places ~150 trees with a winding corridor path, rocks, and boundary walls.
 - `MeshFactory.ts` creates primitives with shared PBR material singletons (call `resetMaterialCache()` on dispose).
 
@@ -39,10 +41,10 @@ Three independent code layers that communicate through callbacks and shared type
 ## Key Patterns
 
 - **React ↔ BabylonJS communication**: Game exposes callback properties (e.g., `game.onPlayerCaught = () => ...`). React calls methods on Game (e.g., `game.resumeChase()`). No shared state object — one-way events in each direction.
-- **Camera system**: 3-level TransformNode hierarchy. `camRoot` follows player position and rotates on Y-axis. `yTilt` pitches down. Camera is offset behind on local -Z. Default camera inputs are cleared (`camera.inputs.clear()`).
+- **Camera system**: 3-level TransformNode hierarchy. `camRoot` follows player position and rotates on Y-axis (mouse yaw). `yTilt` applies pitch (mouse look + clamp). Camera is offset behind on local -Z. Default camera inputs are cleared (`camera.inputs.clear()`).
 - **Materials**: PBR materials are cached as module-level singletons in MeshFactory to avoid creating duplicates.
 - **Collisions**: BabylonJS built-in collision system (`mesh.moveWithCollisions()`, `mesh.checkCollisions`). Ground detection via raycast.
 
 ## Implementation Plan
 
-See `.claude/plans/cozy-swinging-shell.md` for the full phased plan. Currently in Phase 1 (single-player prototype). Phases 2-3 add monster/chat/polish. Phase 4+ adds PartyKit multiplayer.
+See `.claude/plans/cozy-swinging-shell.md` for the full phased plan. Current roadmap includes a Phase 2.5 controls pass between Phase 2 and Phase 3. Phase 4+ adds PartyKit multiplayer.

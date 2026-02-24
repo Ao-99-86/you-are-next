@@ -9,7 +9,7 @@ Ready to code?
  Build an over-the-shoulder 3D multiplayer horror game where 2-4 players run through a dark forest while being chased by a monster. The monster catches players and forces them into annoying text arguments -- win and you're freed, lose and you're eaten. Built with BabylonJS (3D), PartyKit (multiplayer), Vite + React
  (UI), deployed on Vercel. Invite-only for friends.
 
- Developer iterates solo first (Phases 1-3) before enabling multiplayer (Phase 4+). Monster chat starts as a keyword-matching stub, gets Azure Foundry LLM later.
+ Developer iterates solo first (Phases 1-3, with a Phase 2.5 controls pass) before enabling multiplayer (Phase 4+). Monster chat starts as a keyword-matching stub, gets Azure Foundry LLM later.
 
  ---
  Project Structure
@@ -172,6 +172,38 @@ Ready to code?
  - Lose -> eaten, camera observes monster
  - Reach far end -> win screen
  - Full loop works end-to-end
+
+ ---
+ Phase 2.5: Controls Modernization (WASD Strafe + Mouse Look)
+
+ Goal: Shift to a standard third-person control scheme before polish and multiplayer.
+
+ Work
+
+ 1. Update engine/PlayerController.ts:
+   - Movement: W/S forward/back, A/D strafe left/right (no turn-on-A/D)
+   - Mouse look with pointer lock (yaw on camRoot, pitch on yTilt with clamp)
+   - Keep spectator camera behavior for eaten players
+ 2. Add control tuning constants in game/constants.ts:
+   - MOUSE_SENSITIVITY
+   - CAMERA_PITCH_MIN / CAMERA_PITCH_MAX
+   - LOOKSPRING_STRENGTH (subtle smoothing toward neutral pitch when no input)
+ 3. Update engine/Game.ts debug output with camera/input diagnostics:
+   - Pointer lock state
+   - Yaw/pitch values for verification
+ 4. Keep Phase 2 mechanics intact:
+   - Catch -> argument -> win/lose branches still work under new controls
+ 5. Add scripts/verify-phase25-runtime-smoke.mjs
+   - Deterministic checks for strafe/no-turn and mouse look behavior
+ 6. Add docs/verification/phase25-checklist.md and gate Phase 3 on Phase 2.5 GO
+
+ Testable
+
+ - A/D strafes without rotating heading
+ - Mouse movement controls camera yaw/pitch while pointer-locked
+ - Esc exits pointer lock cleanly and controls remain stable
+ - Catch/chat/game-over/finish loops still function
+ - Console has no unexpected runtime errors
 
  ---
  Phase 3: Polish & Atmosphere (Quake Aesthetic)

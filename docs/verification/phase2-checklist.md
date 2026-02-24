@@ -1,6 +1,6 @@
 # Phase 2 Verification Checklist
 
-This checklist gates entry into Phase 3. Phase 3 work must not start until all required checks pass.
+This checklist gates entry into Phase 2.5. Phase 2.5 work must not start until all required checks pass.
 
 ## Sources of Truth
 
@@ -134,8 +134,8 @@ Blockers:
 
 ## Final Decision
 
-- [x] **GO Phase 3**
-- [ ] **NO-GO Phase 3**
+- [x] **GO Phase 2.5**
+- [ ] **NO-GO Phase 2.5**
 
 Decision rationale:
 - All required Phase 2 static and runtime items passed with timestamped evidence, including Playwright MCP, Chrome DevTools MCP scene/console/network probes, Inspector (`Shift+I`) visibility checks, Spector (`Shift+S`/`Shift+P`) capture checks, and automated runtime smoke coverage.

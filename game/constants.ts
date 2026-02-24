@@ -22,6 +22,10 @@ export const CHAT_WIN_THRESHOLD = 7;
 export const CAMERA_DISTANCE = 10;
 export const CAMERA_FOV = 0.8;
 export const CAMERA_Y_TILT = 0.35;
+export const MOUSE_SENSITIVITY = 0.0024;
+export const CAMERA_PITCH_MIN = -0.6;
+export const CAMERA_PITCH_MAX = 0.75;
+export const LOOKSPRING_STRENGTH = 0.045;
 
 // Forest
 export const TREE_COUNT = 150;
