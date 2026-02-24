@@ -1,20 +1,30 @@
- {
-   "dependencies": {
-     "react": "^19.0",
-     "react-dom": "^19.0",
-     "react-router-dom": "^7.0",
-     "@babylonjs/core": "^7.0",
-     "@babylonjs/loaders": "^7.0",
-     "@babylonjs/materials": "^7.0",
-     "partysocket": "^1.0",
-     "nanoid": "^5.0"
-   },
-   "devDependencies": {
-     "partykit": "^0.0.108",
-     "vite": "^6.0",
-     "@vitejs/plugin-react": "^4.0",
-     "typescript": "^5.5",
-     "@types/react": "^19",
-     "@types/react-dom": "^19"
-   }
- }
+{
+  "name": "you-are-next",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "party:dev": "npx partykit dev",
+    "party:deploy": "npx partykit deploy"
+  },
+  "dependencies": {
+    "react": "^19.0",
+    "react-dom": "^19.0",
+    "react-router-dom": "^7.0",
+    "@babylonjs/core": "^7.0",
+    "@babylonjs/loaders": "^7.0",
+    "@babylonjs/materials": "^7.0",
+    "partysocket": "^1.0",
+    "nanoid": "^5.0"
+  },
+  "devDependencies": {
+    "partykit": "^0.0.108",
+    "vite": "^6.0",
+    "@vitejs/plugin-react": "^4.0",
+    "typescript": "^5.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
+}

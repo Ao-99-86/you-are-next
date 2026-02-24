@@ -1,2 +1,7 @@
-plan.md
 node_modules
+dist
+.env
+.env.local
+.partykit
+*.log
+.DS_Store
