@@ -7,6 +7,8 @@
     "typecheck": "npx tsc --noEmit",
     "verify:phase1:static": "npm run typecheck && npm run build",
     "verify:phase1:runtime-smoke": "node scripts/verify-phase1-runtime-smoke.mjs",
+    "verify:phase2:static": "npm run typecheck && npm run build",
+    "verify:phase2:runtime-smoke": "node scripts/verify-phase2-runtime-smoke.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "party:dev": "npx partykit dev",

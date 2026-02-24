@@ -67,4 +67,214 @@ html, body, #root {
   color: #0f0;
   pointer-events: none;
   white-space: pre;
+  z-index: 15;
+}
+
+.hud {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 180px;
+  border: 1px solid rgba(160, 20, 20, 0.8);
+  background: rgba(5, 5, 5, 0.72);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hud-label {
+  color: #8d8d8d;
+}
+
+.hud-value {
+  color: #d8d8d8;
+}
+
+.monster-chat-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.86);
+}
+
+.monster-chat-card {
+  width: min(900px, 92vw);
+  max-height: min(88vh, 760px);
+  border: 1px solid #7f1212;
+  background: rgba(8, 8, 8, 0.96);
+  box-shadow: 0 0 25px rgba(180, 12, 12, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.monster-chat-card h2 {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: #d24747;
+}
+
+.monster-chat-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #aeaeae;
+  font-size: 12px;
+}
+
+.monster-chat-log {
+  flex: 1;
+  border: 1px solid #222;
+  background: #050505;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.monster-chat-round {
+  border-bottom: 1px solid rgba(180, 12, 12, 0.18);
+  padding-bottom: 8px;
+}
+
+.monster-chat-round:last-child {
+  border-bottom: 0;
+}
+
+.monster-line {
+  color: #df7878;
+  margin-bottom: 4px;
+}
+
+.player-line {
+  color: #c9c9c9;
+  margin-bottom: 4px;
+}
+
+.monster-chat-active {
+  border-top: 1px solid #311;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.monster-chat-form {
+  display: flex;
+  gap: 8px;
+}
+
+.monster-chat-form input {
+  flex: 1;
+  background: #111;
+  border: 1px solid #3a3a3a;
+  color: #ddd;
+  padding: 10px 12px;
+  font-family: inherit;
+}
+
+.monster-chat-form input:focus {
+  outline: 1px solid #8a1d1d;
+  border-color: #8a1d1d;
+}
+
+.monster-chat-form button {
+  background: transparent;
+  color: #ddd;
+  border: 1px solid #8a1d1d;
+  padding: 0 16px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.monster-chat-form button:hover {
+  background: #8a1d1d;
+  color: #111;
+}
+
+.monster-chat-result {
+  color: #e3b7b7;
+}
+
+.game-over-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.88);
+}
+
+.game-over-card {
+  width: min(440px, 92vw);
+  border: 1px solid #6f1010;
+  background: rgba(10, 10, 10, 0.96);
+  padding: 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.game-over-card h2 {
+  color: #d24747;
+  letter-spacing: 0.12em;
+}
+
+.game-over-card p {
+  color: #cbcbcb;
+}
+
+.game-over-card button {
+  align-self: center;
+  min-width: 140px;
+  height: 40px;
+  background: transparent;
+  color: #ddd;
+  border: 1px solid #8a1d1d;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.game-over-card button:hover {
+  background: #8a1d1d;
+  color: #111;
+}
+
+@media (max-width: 680px) {
+  .monster-chat-card {
+    width: 95vw;
+    max-height: 92vh;
+    padding: 12px;
+  }
+
+  .monster-chat-meta {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .monster-chat-form {
+    flex-direction: column;
+  }
+
+  .monster-chat-form button {
+    height: 38px;
+  }
 }

@@ -11,6 +11,12 @@ export const PLAYER_HEIGHT = 1.8;
 export const MONSTER_SPEED = 0.38;
 export const MONSTER_DETECT_RANGE = 40;
 export const CATCH_RADIUS = 2.0;
+export const RECATCH_GRACE_MS = 2000;
+
+// Chat / argument loop
+export const CHAT_ROUNDS = 3;
+export const CHAT_ROUND_SECONDS = 12;
+export const CHAT_WIN_THRESHOLD = 7;
 
 // Camera
 export const CAMERA_DISTANCE = 10;

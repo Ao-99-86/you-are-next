@@ -10,6 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run dev` — Vite dev server (port 5173)
 - `npm run build` — Production build to `dist/`
+- `npm run verify:phase2:static` — Phase 2 static gate (`typecheck` + `build`)
+- `npm run verify:phase2:runtime-smoke` — Automated Phase 2 runtime branch smoke test
 - `npm run party:dev` — PartyKit dev server (port 1999, needed for multiplayer)
 - `npx tsc --noEmit` — Type-check (party/ is excluded; it's built by PartyKit separately)
 
@@ -19,6 +21,7 @@ Three independent code layers that communicate through callbacks and shared type
 
 **`engine/`** — Pure TypeScript BabylonJS code (no React). This is the 3D game engine.
 - `Game.ts` is the orchestrator: state machine (LOADING/PLAYING/ARGUMENT/GAME_OVER), render loop, and callback hooks for React (`onPlayerCaught`, `onGameOver`, `onDebug`).
+- `Monster.ts` owns the primitive monster mesh and patrol/chase movement state.
 - `PlayerController.ts` owns the camera hierarchy (camRoot → yTilt → UniversalCamera) and WASD movement with `moveWithCollisions()`.
 - `ForestMap.ts` procedurally places ~150 trees with a winding corridor path, rocks, and boundary walls.
 - `MeshFactory.ts` creates primitives with shared PBR material singletons (call `resetMaterialCache()` on dispose).

@@ -38,6 +38,7 @@ export class PlayerController {
   private _gravity = new Vector3(0, 0, 0);
   private _grounded = false;
   private _frozen = false;
+  private _spectatorTarget: (() => Vector3) | null = null;
 
   get position(): Vector3 {
     return this._mesh.position;
@@ -106,7 +107,17 @@ export class PlayerController {
   }
 
   update(): void {
-    if (this._frozen) return;
+    if (this._frozen) {
+      if (this._spectatorTarget) {
+        const target = this._spectatorTarget();
+        const desired = new Vector3(target.x, target.y + 2.5, target.z - CAMERA_DISTANCE * 0.75);
+        this._camRoot.position = Vector3.Lerp(this._camRoot.position, desired, 0.08);
+        const look = target.subtract(this._camRoot.position);
+        this._facingAngle = Math.atan2(look.x, look.z);
+        this._camRoot.rotation.y = this._facingAngle;
+      }
+      return;
+    }
 
     const dt = this._scene.getEngine().getDeltaTime() / 1000;
 
@@ -198,9 +209,16 @@ export class PlayerController {
 
   freeze(): void {
     this._frozen = true;
+    this._spectatorTarget = null;
   }
 
   unfreeze(): void {
     this._frozen = false;
+    this._spectatorTarget = null;
+  }
+
+  spectate(targetGetter: () => Vector3): void {
+    this._frozen = true;
+    this._spectatorTarget = targetGetter;
   }
 }
