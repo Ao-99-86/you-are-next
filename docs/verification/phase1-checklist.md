@@ -48,12 +48,12 @@ If any required item fails, decision is **NO-GO**.
 
 - [x] `npm run dev` starts app and `/play` is reachable from landing page.
   - Evidence: confirmed on `2026-02-23 20:34 PST` (`VITE v6.4.1 ready`, `Local: http://127.0.0.1:5173/`) and Playwright route click-through to `http://127.0.0.1:5173/play`.
-- [ ] Forest scene is dark/foggy and renders successfully.
-  - Evidence: render loop confirmed on `/play` (Babylon WebGL logs + live debug overlay updates); explicit visual dark/fog assertion still pending manual check.
-- [ ] WASD/arrow controls move the player; camera follows behind.
-  - Evidence: movement confirmed in Playwright after focusing canvas and holding `W` for 2s (`Z: -130.0 -> -76.2`, `Progress: 0% -> 20%`); explicit camera-follow assertion still pending manual check.
-- [ ] Boundary walls prevent leaving map bounds.
-  - Evidence:
+- [x] Forest scene is dark/foggy and renders successfully.
+  - Evidence: verified on `2026-02-24` at `http://127.0.0.1:5174/play`; Playwright screenshot shows visible foggy forest scene (not blank), and camera center ray intersects ground (`hitGround: true`, distance `18.05`).
+- [x] WASD/arrow controls move the player; camera follows behind.
+  - Evidence: Playwright hold-`W` for 2s on `2026-02-24` moved player `Z: -130.0 -> -77.7`; camera followed with near-constant trailing offset (`cam Z: -138.7 -> -87.1`).
+- [x] Boundary walls prevent leaving map bounds.
+  - Evidence: collision probe on `2026-02-24` (`player.moveWithCollisions(±80,0,0)` from spawn lane) clamps lateral position near map limits (`X ~= -48.66` and `X ~= 49.33`), confirming wall blocking.
 - [x] Crossing finish zone logs completion (`[phase1] Finish zone crossed ...`).
   - Evidence: runtime Playwright run on `2026-02-23 20:34 PST` logged `[phase1] Finish zone crossed at z=140.18` with `Z: 139.7` and `Progress: 100%`.
 
@@ -81,17 +81,20 @@ Results:
 3. Use debuging tools including @babylonjs/inspector, spectorjs, Playwright MCP, Chrome DevTools MCP
 4. Verify movement/camera/collision scenarios
 5. Traverse to finish zone and verify console logs
+6. Run `npm run verify:phase1:runtime-smoke` for automated runtime regression checks
 
 Results:
 
 - [x] Landing -> Play navigation pass
   - Evidence: Playwright clicked `Play` on `/` and reached `/play` with active canvas/debug overlay (`2026-02-23 20:34 PST`).
-- [ ] Movement + camera pass
-  - Evidence: movement verified via debug delta (`W` key moved `Z: -130.0 -> -76.2`); camera-follow behavior still pending explicit manual assertion.
-- [ ] Boundary collision pass
-  - Evidence:
+- [x] Movement + camera pass
+  - Evidence: `2026-02-24` Playwright run holding `W` for 2s: player `Z -130.0 -> -77.7`, camera `Z -138.7 -> -87.1` (camera remains behind while tracking player position).
+- [x] Boundary collision pass
+  - Evidence: `2026-02-24` collision probe via `moveWithCollisions` against ±X walls clamps near boundaries (`X ~= -48.66`, `X ~= 49.33`) instead of exiting map.
 - [x] Finish-zone logging pass
   - Evidence: console emitted `[phase1] Finish zone crossed at z=140.18` and `[game] Game over: win` in `/play` run (`2026-02-23 20:34 PST`).
+- [x] Automated runtime smoke pass
+  - Evidence: `npm run verify:phase1:runtime-smoke` passed on `2026-02-24` (`[runtime-smoke] Passed: render, camera, movement, boundary, and console checks.`).
 
 ## Blocker Triage and Fix Loop
 
@@ -107,11 +110,21 @@ Blockers:
 - Resolved: browser console error `GET /favicon.ico 404` during runtime checks.
   - Fix: added `public/favicon.svg` and linked it from `index.html`.
   - Re-test: Playwright console error count is now 0 at `/` and `/play`.
+- Resolved: `/play` could present as a blank screen in dev despite active render loop.
+  - Root causes:
+    - Camera view direction was inverted by per-frame `setTarget()` on a parented `UniversalCamera` (camera center ray pointed away from expected scene view).
+    - Material cache reused stale scene-bound materials across remount/dispose cycles, causing invalid material reuse in subsequent scene instances.
+    - Debug setup called `spector.spyCanvases()` during startup, producing runtime `TypeError` noise in current dev verification flow.
+  - Fixes:
+    - Removed per-frame camera `setTarget()` in `PlayerController` and relied on camera hierarchy transforms for stable over-the-shoulder orientation.
+    - Hardened `Game.start()`/debug setup against dispose races and moved Spector canvas spying to on-demand shortcut usage.
+    - Reset material cache on `Game.dispose()` and recreate cached materials when scene instance changes.
+  - Re-test (`2026-02-24`): `/play` shows visible forest scene, camera center ray hits ground (`hitGround: true`), and Playwright reports 0 console errors.
 
 ## Final Decision
 
-- [ ] **GO Phase 2**
-- [x] **NO-GO Phase 2**
+- [x] **GO Phase 2**
+- [ ] **NO-GO Phase 2**
 
 Decision rationale:
-- Remaining required runtime checks are not complete (`Forest dark/fog visual assertion`, `camera-follow manual assertion`, `boundary collision verification`).
+- Static gate passes and required runtime checks now have current dated evidence, including resolved blank-screen blocker and clean runtime console state.

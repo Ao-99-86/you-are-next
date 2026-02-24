@@ -186,16 +186,6 @@ export class PlayerController {
       0.4
     );
     this._camRoot.rotation.y = this._facingAngle;
-
-    const forward = new Vector3(
-      Math.sin(this._facingAngle),
-      0,
-      Math.cos(this._facingAngle)
-    );
-    const lookTarget = this._camRoot.position
-      .add(forward.scale(8))
-      .add(new Vector3(0, 1.2, 0));
-    this._camera.setTarget(lookTarget);
   }
 
   private _isGrounded(): boolean {

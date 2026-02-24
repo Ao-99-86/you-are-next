@@ -3,6 +3,7 @@ import { GamePhase, GameResult } from "../game/types";
 import { FINISH_Z, START_Z } from "../game/constants";
 import { buildForest } from "./ForestMap";
 import { setupLighting } from "./Lighting";
+import { resetMaterialCache } from "./MeshFactory";
 import { PlayerController } from "./PlayerController";
 
 type SpectorLike = {
@@ -21,6 +22,7 @@ export class Game {
   private _scene!: Scene;
   private _player!: PlayerController;
   private _phase: GamePhase = GamePhase.LOADING;
+  private _started = false;
   private _disposed = false;
   private _devDebugCleanup: (() => void) | null = null;
 
@@ -37,6 +39,9 @@ export class Game {
   }
 
   async start(): Promise<void> {
+    if (this._started || this._disposed) return;
+    this._started = true;
+
     this._scene = new Scene(this._engine);
     this._scene.collisionsEnabled = true;
 
@@ -49,6 +54,7 @@ export class Game {
 
     this._phase = GamePhase.PLAYING;
     await this._setupDevDebugTools();
+    if (this._disposed) return;
 
     // Render loop
     this._engine.runRenderLoop(() => {
@@ -101,6 +107,7 @@ export class Game {
     } catch (err) {
       console.warn("[debug] Failed to load Babylon Inspector:", err);
     }
+    if (this._disposed) return;
 
     let spector: SpectorLike | null = null;
     try {
@@ -109,7 +116,6 @@ export class Game {
         mod.Spector ?? mod.default?.Spector ?? (window as { SPECTOR?: { Spector?: new () => SpectorLike } }).SPECTOR?.Spector;
       if (SpectorCtor) {
         spector = new SpectorCtor();
-        spector.spyCanvases();
         (window as { __SPECTOR__?: SpectorLike }).__SPECTOR__ = spector;
       } else {
         console.warn("[debug] SpectorJS loaded but no Spector constructor was found.");
@@ -117,6 +123,7 @@ export class Game {
     } catch (err) {
       console.warn("[debug] Failed to load SpectorJS:", err);
     }
+    if (this._disposed) return;
 
     const handleKeyDown = (evt: KeyboardEvent) => {
       if (!evt.shiftKey) return;
@@ -133,6 +140,7 @@ export class Game {
 
       if (key === "s" && spector) {
         evt.preventDefault();
+        spector.spyCanvases();
         spector.displayUI();
         console.log("[debug] SpectorJS UI opened.");
       }
@@ -187,6 +195,7 @@ export class Game {
     this._devDebugCleanup = null;
     this._engine.stopRenderLoop();
     this._scene?.dispose();
+    resetMaterialCache();
     this._engine.dispose();
   }
 }
