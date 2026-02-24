@@ -10,18 +10,18 @@ import { FOG_DENSITY } from "../game/constants";
 export function setupLighting(scene: Scene): void {
   // Dim ambient light from above
   const hemi = new HemisphericLight("hemi", new Vector3(0, 1, 0), scene);
-  hemi.intensity = 0.3;
-  hemi.diffuse = new Color3(0.4, 0.35, 0.5);
-  hemi.groundColor = new Color3(0.02, 0.02, 0.04);
+  hemi.intensity = 0.55;
+  hemi.diffuse = new Color3(0.62, 0.58, 0.7);
+  hemi.groundColor = new Color3(0.08, 0.08, 0.1);
 
   // Exponential fog
   scene.fogMode = Scene.FOGMODE_EXP2;
   scene.fogDensity = FOG_DENSITY;
-  scene.fogColor = new Color3(0.03, 0.03, 0.05);
+  scene.fogColor = new Color3(0.05, 0.05, 0.07);
 
   // Dark clear color
-  scene.clearColor = new Color4(0.02, 0.02, 0.04, 1);
+  scene.clearColor = new Color4(0.03, 0.03, 0.05, 1);
 
   // Ambient color
-  scene.ambientColor = new Color3(0.05, 0.05, 0.08);
+  scene.ambientColor = new Color3(0.1, 0.1, 0.12);
 }

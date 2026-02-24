@@ -2,6 +2,8 @@ import { Scene, TransformNode } from "@babylonjs/core";
 import {
   MAP_WIDTH,
   MAP_DEPTH,
+  START_Z,
+  FINISH_Z,
   TREE_COUNT,
   TREE_MIN_RADIUS,
   TREE_MAX_RADIUS,
@@ -28,6 +30,8 @@ function tooClose(x: number, z: number, placed: { x: number; z: number }[], minD
 
 export function buildForest(scene: Scene): TransformNode {
   const root = new TransformNode("forest", scene);
+  const START_CLEAR_RADIUS = 16;
+  const FINISH_CLEAR_RADIUS = 16;
 
   // Ground
   createGround(scene, MAP_WIDTH, MAP_DEPTH);
@@ -51,9 +55,11 @@ export function buildForest(scene: Scene): TransformNode {
     const x = rand(-halfW + 2, halfW - 2);
     const z = rand(-halfD + 15, halfD - 15);
 
-    // Leave a narrow winding corridor near center (offset by sin wave)
-    const corridorCenter = Math.sin(z * 0.03) * 10;
+    // Leave a narrow winding corridor. Phase-align to spawn so the run starts in a clear lane.
+    const corridorCenter = Math.sin((z - START_Z) * 0.03) * 8;
     if (Math.abs(x - corridorCenter) < CORRIDOR_WIDTH) continue;
+    if (Math.hypot(x, z - START_Z) < START_CLEAR_RADIUS) continue;
+    if (Math.hypot(x, z - FINISH_Z) < FINISH_CLEAR_RADIUS) continue;
 
     // Minimum spacing between trees
     if (tooClose(x, z, placed, TREE_SPACING)) continue;
@@ -70,7 +76,13 @@ export function buildForest(scene: Scene): TransformNode {
   for (let i = 0; i < rockCount; i++) {
     const x = rand(-halfW + 3, halfW - 3);
     const z = rand(-halfD + 15, halfD - 15);
-    if (!tooClose(x, z, placed, 1.5)) {
+    const corridorCenter = Math.sin((z - START_Z) * 0.03) * 8;
+    if (
+      !tooClose(x, z, placed, 1.5) &&
+      Math.abs(x - corridorCenter) >= CORRIDOR_WIDTH &&
+      Math.hypot(x, z - START_Z) >= START_CLEAR_RADIUS &&
+      Math.hypot(x, z - FINISH_Z) >= FINISH_CLEAR_RADIUS
+    ) {
       createRock(scene, x, z, rand(0.5, 1.5), root);
       placed.push({ x, z });
     }

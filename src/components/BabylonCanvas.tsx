@@ -14,6 +14,9 @@ export default function BabylonCanvas() {
     gameRef.current = game;
 
     game.onDebug = (info: string) => setDebug(info);
+    game.onGameOver = (result) => {
+      console.log(`[game] Game over: ${result}`);
+    };
 
     game.start().catch((err) => console.error("Game failed to start:", err));
 

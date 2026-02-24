@@ -75,6 +75,8 @@ export class PlayerController {
     );
     this._camera.parent = this._yTilt;
     this._camera.fov = CAMERA_FOV;
+    this._camera.minZ = 0.05;
+    this._camera.maxZ = 1000;
     // No lockedTarget -- the parent hierarchy handles orientation.
     // Camera naturally looks down its local +Z, which points toward camRoot
     // (since it's offset at -Z behind it).
@@ -184,6 +186,16 @@ export class PlayerController {
       0.4
     );
     this._camRoot.rotation.y = this._facingAngle;
+
+    const forward = new Vector3(
+      Math.sin(this._facingAngle),
+      0,
+      Math.cos(this._facingAngle)
+    );
+    const lookTarget = this._camRoot.position
+      .add(forward.scale(8))
+      .add(new Vector3(0, 1.2, 0));
+    this._camera.setTarget(lookTarget);
   }
 
   private _isGrounded(): boolean {

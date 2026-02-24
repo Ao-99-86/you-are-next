@@ -21,22 +21,22 @@ let _groundMat: PBRMaterial | null = null;
 let _rockMat: PBRMaterial | null = null;
 
 function barkMat(scene: Scene) {
-  if (!_barkMat) _barkMat = darkPBR("bark", scene, 0.12, 0.07, 0.03);
+  if (!_barkMat) _barkMat = darkPBR("bark", scene, 0.2, 0.14, 0.08);
   return _barkMat;
 }
 
 function canopyMat(scene: Scene) {
-  if (!_canopyMat) _canopyMat = darkPBR("canopy", scene, 0.04, 0.1, 0.03);
+  if (!_canopyMat) _canopyMat = darkPBR("canopy", scene, 0.09, 0.18, 0.08);
   return _canopyMat;
 }
 
 function groundMat(scene: Scene) {
-  if (!_groundMat) _groundMat = darkPBR("ground", scene, 0.06, 0.05, 0.03);
+  if (!_groundMat) _groundMat = darkPBR("ground", scene, 0.15, 0.13, 0.09);
   return _groundMat;
 }
 
 function rockMat(scene: Scene) {
-  if (!_rockMat) _rockMat = darkPBR("rock", scene, 0.1, 0.1, 0.1);
+  if (!_rockMat) _rockMat = darkPBR("rock", scene, 0.18, 0.18, 0.18);
   return _rockMat;
 }
 

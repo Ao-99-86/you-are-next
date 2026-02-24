@@ -5,12 +5,24 @@ import { buildForest } from "./ForestMap";
 import { setupLighting } from "./Lighting";
 import { PlayerController } from "./PlayerController";
 
+type SpectorLike = {
+  displayUI: () => void;
+  captureCanvas: (canvas: HTMLCanvasElement) => void;
+  spyCanvases: () => void;
+};
+
+type SpectorModule = {
+  Spector?: new () => SpectorLike;
+  default?: { Spector?: new () => SpectorLike };
+};
+
 export class Game {
   private _engine: Engine;
   private _scene!: Scene;
   private _player!: PlayerController;
   private _phase: GamePhase = GamePhase.LOADING;
   private _disposed = false;
+  private _devDebugCleanup: (() => void) | null = null;
 
   // Callbacks for React integration
   onDebug: ((info: string) => void) | null = null;
@@ -36,6 +48,7 @@ export class Game {
     this._player = new PlayerController(this._scene, START_Z);
 
     this._phase = GamePhase.PLAYING;
+    await this._setupDevDebugTools();
 
     // Render loop
     this._engine.runRenderLoop(() => {
@@ -64,7 +77,9 @@ export class Game {
     const pz = this._player.position.z;
     if (pz >= FINISH_Z) {
       this._phase = GamePhase.GAME_OVER;
+      console.log(`[phase1] Finish zone crossed at z=${pz.toFixed(2)}`);
       this.onGameOver?.(GameResult.WIN);
+      return;
     }
 
     // Debug info
@@ -72,8 +87,76 @@ export class Game {
       const fps = this._engine.getFps().toFixed(0);
       const pos = this._player.position;
       const progress = ((pz - START_Z) / (FINISH_Z - START_Z) * 100).toFixed(0);
-      this.onDebug(`FPS: ${fps}\nZ: ${pos.z.toFixed(1)}\nProgress: ${progress}%`);
+      this.onDebug(
+        `FPS: ${fps}\nX: ${pos.x.toFixed(1)}\nZ: ${pos.z.toFixed(1)}\nProgress: ${progress}%`
+      );
     }
+  }
+
+  private async _setupDevDebugTools(): Promise<void> {
+    if (!import.meta.env.DEV || this._disposed) return;
+
+    try {
+      await import("@babylonjs/inspector");
+    } catch (err) {
+      console.warn("[debug] Failed to load Babylon Inspector:", err);
+    }
+
+    let spector: SpectorLike | null = null;
+    try {
+      const mod = (await import("spectorjs")) as SpectorModule;
+      const SpectorCtor =
+        mod.Spector ?? mod.default?.Spector ?? (window as { SPECTOR?: { Spector?: new () => SpectorLike } }).SPECTOR?.Spector;
+      if (SpectorCtor) {
+        spector = new SpectorCtor();
+        spector.spyCanvases();
+        (window as { __SPECTOR__?: SpectorLike }).__SPECTOR__ = spector;
+      } else {
+        console.warn("[debug] SpectorJS loaded but no Spector constructor was found.");
+      }
+    } catch (err) {
+      console.warn("[debug] Failed to load SpectorJS:", err);
+    }
+
+    const handleKeyDown = (evt: KeyboardEvent) => {
+      if (!evt.shiftKey) return;
+      const key = evt.key.toLowerCase();
+
+      if (key === "i") {
+        evt.preventDefault();
+        if (this._scene.debugLayer.isVisible()) {
+          void this._scene.debugLayer.hide();
+        } else {
+          void this._scene.debugLayer.show({ overlay: true });
+        }
+      }
+
+      if (key === "s" && spector) {
+        evt.preventDefault();
+        spector.displayUI();
+        console.log("[debug] SpectorJS UI opened.");
+      }
+
+      if (key === "p" && spector) {
+        evt.preventDefault();
+        spector.captureCanvas(this._canvas);
+        console.log("[debug] SpectorJS capture requested.");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    console.log("[debug] Shortcuts: Shift+I (Inspector), Shift+S (Spector UI), Shift+P (Spector capture).");
+
+    this._devDebugCleanup = () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      if (this._scene?.debugLayer?.isVisible()) {
+        void this._scene.debugLayer.hide();
+      }
+      const win = window as { __SPECTOR__?: SpectorLike };
+      if (win.__SPECTOR__ === spector) {
+        delete win.__SPECTOR__;
+      }
+    };
   }
 
   /** Freeze gameplay for argument phase */
@@ -100,6 +183,8 @@ export class Game {
 
   dispose(): void {
     this._disposed = true;
+    this._devDebugCleanup?.();
+    this._devDebugCleanup = null;
     this._engine.stopRenderLoop();
     this._scene?.dispose();
     this._engine.dispose();
