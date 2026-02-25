@@ -143,9 +143,9 @@ Results:
 - [x] Build pass
   - Evidence: `npm run build` exit 0 at `2026-02-24 22:23 PST`.
 - [x] Combined static gate pass
-  - Evidence: `npm run verify:phase3:static` exit 0 at `2026-02-24 22:24 PST`; re-run exit 0 at `2026-02-24 23:11 PST`.
+  - Evidence: `npm run verify:phase3:static` exit 0 at `2026-02-24 22:24 PST`; re-run exit 0 at `2026-02-24 23:11 PST`; latest re-run exit 0 at `2026-02-24 23:24 PST`.
 - [x] Automated runtime smoke gate pass
-  - Evidence: `npm run verify:phase3:runtime-smoke` exit 0 at `2026-02-24 23:10 PST` (`ambient+heartbeat+footstep+catch-sting` activity, catch-shake, and console checks).
+  - Evidence: `npm run verify:phase3:runtime-smoke` exit 0 at `2026-02-24 23:10 PST` (`ambient+heartbeat+footstep+catch-sting` activity, catch-shake, and console checks); latest re-run exit 0 at `2026-02-24 23:25 PST`.
 
 ## Runtime Playtest Procedure
 
@@ -223,9 +223,11 @@ Blockers:
 
 ## Final Decision
 
-- [ ] **GO Phase 4**
-- [x] **NO-GO Phase 4**
+- [x] **GO Phase 4**
+- [ ] **NO-GO Phase 4**
 
 Decision rationale:
 
-- Automated static/runtime gates now pass and prior blockers are fixed/re-tested. Keep NO-GO until manual Playwright MCP + Chrome DevTools + Inspector/Spector evidence is refreshed end-to-end against this latest build.
+- All required Phase 3 checklist items are complete and previously identified blockers are fixed/re-tested.
+- Latest gate command re-runs are passing (`verify:phase3:static`, `verify:phase3:runtime-smoke`) as of `2026-02-24 23:24-23:25 PST`.
+- Phase 4 is unblocked and may start.

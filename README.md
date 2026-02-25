@@ -5,7 +5,6 @@ This file is the canonical planning, progress, and execution document for coding
 ## Canonical Rule
 
 - `README.md` is the single source of truth for roadmap and phase progress.
-- `GamePlan.txt` is deprecated and removed from the repo.
 - Future agents must update this README when roadmap, implementation status, or phase decisions change.
 
 ## 1) Project Context
@@ -27,18 +26,18 @@ Product constraints:
 
 ## 2) Current Progress Snapshot
 
-Latest verified state (`2026-02-24 23:11 PST`):
+Latest verified state (`2026-02-24 23:25 PST`):
 
 - Phase 1 gate: GO (`docs/verification/phase1-checklist.md`)
 - Phase 2 gate: GO (`docs/verification/phase2-checklist.md`)
 - Phase 2.5 gate: GO (`docs/verification/phase25-checklist.md`)
-- Phase 3 gate: NO-GO (`docs/verification/phase3-checklist.md`)
+- Phase 3 gate: GO (`docs/verification/phase3-checklist.md`)
 - Phase 3 automated gates: PASS (`verify:phase3:static`, `verify:phase3:runtime-smoke`)
+- Phase 4 entry: UNBLOCKED (per `docs/verification/phase3-checklist.md`)
 
 Current Phase 3 open items:
 
-- Manual Playwright MCP + Chrome DevTools MCP + Inspector/Spector evidence needs refresh against latest runtime changes.
-- Final GO/NO-GO decision for Phase 4 remains open until that manual evidence is captured in `docs/verification/phase3-checklist.md`.
+- None. Phase 3 checklist is complete and Phase 4 is unblocked.
 
 ## 3) Stack and Runtime
 
@@ -190,8 +189,8 @@ This section replaces prior plan-file content. Keep this updated as work progres
 | 1 | Project scaffolding + core 3D single-player loop | Complete | GO (`docs/verification/phase1-checklist.md`) |
 | 2 | Monster + catch + argument loop | Complete | GO (`docs/verification/phase2-checklist.md`) |
 | 2.5 | Controls modernization (WASD strafe + mouse look) | Complete | GO (`docs/verification/phase25-checklist.md`) |
-| 3 | Polish and atmosphere | Partial | NO-GO (`docs/verification/phase3-checklist.md`) |
-| 4 | Multiplayer (PartyKit) | Not started | Planned |
+| 3 | Polish and atmosphere | Complete | GO (`docs/verification/phase3-checklist.md`) |
+| 4 | Multiplayer (PartyKit) | Not started | Unblocked (entry GO) |
 | 5 | AI players + Azure LLM chat | Not started | Planned |
 | 6 | Deployment + invite gating | Not started | Planned |
 
@@ -320,8 +319,8 @@ Implementation status (actual):
 - Gate status:
   - Static gate PASS
   - Automated runtime gate PASS
-  - Manual evidence refresh pending
-  - NO-GO for Phase 4 entry (current)
+  - Manual/runtime evidence captured in checklist
+  - GO for Phase 4 entry (current)
 
 ### Phase 4: Multiplayer (PartyKit)
 
@@ -427,22 +426,20 @@ After each phase implementation:
 
 ## 10) Current Risks and Drifts
 
-1. Phase 3 verification evidence drift:
-   - Manual evidence set in checklist still contains stale pre-fix observations and must be refreshed.
-2. Headless runtime variability:
+1. Headless runtime variability:
    - Audio/camera behavior can vary by browser environment; keep automated gate plus manual evidence.
-3. Debug tooling noise:
+2. Debug tooling noise:
    - Spector warnings can pollute console cleanliness checks
-4. Documentation consistency:
+3. Documentation consistency:
    - planning/progress must be updated here, not in external plan files
 
 ## 11) Active TODO Queue (Execution Order)
 
-When resuming work toward Phase 3 GO:
+Phase 4 execution queue:
 
-1. Refresh manual runtime evidence in `docs/verification/phase3-checklist.md` (Playwright MCP + Chrome DevTools MCP + Inspector/Spector).
-2. Confirm final GO/NO-GO for Phase 4 and update checklist + README snapshot.
-3. If GO, begin Phase 4 multiplayer implementation.
+1. Expand shared game types/state for multiplayer.
+2. Rewrite `party/index.ts` as authoritative server tick/broadcast.
+3. Build room/network hook (`useGameRoom`) plus remote-player interpolation path.
 
 ## 12) Agent Workflow Contract
 
