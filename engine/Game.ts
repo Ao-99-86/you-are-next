@@ -61,6 +61,7 @@ export class Game {
     this._engine = new Engine(_canvas, true, {
       preserveDrawingBuffer: false,
       stencil: true,
+      audioEngine: true,
     });
   }
 
@@ -86,7 +87,7 @@ export class Game {
     setupPostProcessing(this._scene, this._player.camera);
 
     // Audio system
-    this._audio = new AudioSystem();
+    this._audio = new AudioSystem(this._scene);
 
     this._setPhase(GamePhase.PLAYING);
     await this._setupDevDebugTools();
@@ -153,7 +154,9 @@ export class Game {
   }
 
   private _updateArgument(): void {
-    // Player and monster stay frozen while UI drives round submissions.
+    // Player is frozen for movement, but update() still runs _updateShake()
+    // which executes before the frozen-guard, so catch-shake animates correctly.
+    this._player.update();
   }
 
   private _updateGameOver(dtSeconds: number): void {

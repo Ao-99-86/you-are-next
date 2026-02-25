@@ -1,5 +1,6 @@
 import {
   Scene,
+  Engine,
   UniversalCamera,
   TransformNode,
   Vector3,
@@ -159,6 +160,9 @@ export class PlayerController {
   private _handleCanvasClick = (): void => {
     if (this._frozen || !this._canvas) return;
     if (document.pointerLockElement === this._canvas) return;
+
+    // Ensure audio unlock is attempted from an actual user gesture.
+    Engine.audioEngine?.unlock();
 
     try {
       const maybePromise = this._canvas.requestPointerLock() as unknown;

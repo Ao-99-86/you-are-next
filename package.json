@@ -12,6 +12,7 @@
     "verify:phase25:static": "npm run typecheck && npm run build",
     "verify:phase25:runtime-smoke": "node scripts/verify-phase25-runtime-smoke.mjs",
     "verify:phase3:static": "npm run typecheck && npm run build",
+    "verify:phase3:runtime-smoke": "node scripts/verify-phase3-runtime-smoke.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "party:dev": "npx partykit dev",

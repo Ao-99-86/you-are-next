@@ -4,7 +4,7 @@ This checklist gates entry into Phase 3. Phase 3 work must not start until all r
 
 ## Sources of Truth
 
-- `GamePlan.txt` (Phase 2.5 Work + Testable sections)
+- `README.md` (Phase 2.5 Work + Testable sections)
 - `CLAUDE.md` (current architecture and command references)
 - Current implementation in `src/`, `engine/`, `game/`, and `party/`
 
@@ -45,8 +45,8 @@ For each runtime claim, record:
   - Evidence: Script present and executed at `2026-02-23 22:13 PST`; output confirms control + gameplay branch coverage.
 - [x] `package.json` includes `verify:phase25:static` and `verify:phase25:runtime-smoke`.
   - Evidence: `package.json` scripts inspected at `2026-02-23 22:18 PST`.
-- [x] Plan/docs references are updated for Phase 2.5 (`GamePlan.txt`, checklist flow, command docs).
-  - Evidence: `GamePlan.txt`, `docs/verification/phase2-checklist.md`, and `CLAUDE.md` updated with Phase 2.5 references (`2026-02-23 22:18 PST`).
+- [x] Plan/docs references are updated for Phase 2.5 (`README.md`, checklist flow, command docs).
+  - Evidence: `README.md`, `docs/verification/phase2-checklist.md`, and `CLAUDE.md` define Phase 2.5 references and workflow guidance (`2026-02-23 22:18 PST`, migrated to README canonical plan on `2026-02-25`).
 
 ### Testable Items
 

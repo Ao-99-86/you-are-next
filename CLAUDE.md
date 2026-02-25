@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run verify:phase2:runtime-smoke` — Automated Phase 2 runtime branch smoke test
 - `npm run verify:phase25:static` — Phase 2.5 static gate (`typecheck` + `build`)
 - `npm run verify:phase25:runtime-smoke` — Automated Phase 2.5 controls runtime smoke test
+- `npm run verify:phase3:static` — Phase 3 static gate (`typecheck` + `build`)
+- `npm run verify:phase3:runtime-smoke` — Automated Phase 3 runtime smoke (audio + camera-feel + regression checks)
 - `npm run party:dev` — PartyKit dev server (port 1999, needed for multiplayer)
 - `npx tsc --noEmit` — Type-check (party/ is excluded; it's built by PartyKit separately)
 
@@ -47,4 +49,4 @@ Three independent code layers that communicate through callbacks and shared type
 
 ## Implementation Plan
 
-See `.claude/plans/cozy-swinging-shell.md` for the full phased plan. Current roadmap includes a Phase 2.5 controls pass between Phase 2 and Phase 3. Phase 4+ adds PartyKit multiplayer.
+See `README.md` for the canonical phased plan and current progress tracking. Agents must update `README.md` and `docs/verification/phaseX-checklist.md` when phase status changes.
