@@ -8,6 +8,21 @@ interface MonsterChatProps {
   onSubmit: (message: string) => void;
 }
 
+function useTypewriter(text: string, speedMs = 30): string {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    setDisplayed("");
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) clearInterval(id);
+    }, speedMs);
+    return () => clearInterval(id);
+  }, [text, speedMs]);
+  return displayed;
+}
+
 export default function MonsterChat({
   visible,
   session,
@@ -19,6 +34,9 @@ export default function MonsterChat({
     if (!session) return null;
     return session.rounds[session.currentRound] ?? null;
   }, [session]);
+
+  const activeTaunt = activeRound?.taunt ?? "";
+  const typewriterText = useTypewriter(activeTaunt);
 
   useEffect(() => {
     setMessage("");
@@ -37,7 +55,7 @@ export default function MonsterChat({
   return (
     <div className="monster-chat-overlay">
       <div className="monster-chat-card">
-        <h2>THE MONSTER DEMANDS AN ARGUMENT</h2>
+        <h2 className="monster-chat-title">THE MONSTER DEMANDS AN ARGUMENT</h2>
         <div className="monster-chat-meta">
           <span>
             Round {Math.min(session.currentRound + 1, session.rounds.length)} / {session.rounds.length}
@@ -69,7 +87,9 @@ export default function MonsterChat({
         {isInProgress && activeRound && (
           <div className="monster-chat-active">
             <p className="monster-line">
-              <strong>Current taunt:</strong> {activeRound.taunt}
+              <strong>Current taunt:</strong>{" "}
+              {typewriterText}
+              <span className="typewriter-cursor">|</span>
             </p>
             <form onSubmit={onFormSubmit} className="monster-chat-form">
               <input

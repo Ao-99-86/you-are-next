@@ -1,6 +1,8 @@
 import { Engine, Scene, Vector3 } from "@babylonjs/core";
 import {
   CATCH_RADIUS,
+  CATCH_SHAKE_DURATION_MS,
+  CATCH_SHAKE_INTENSITY,
   FINISH_Z,
   RECATCH_GRACE_MS,
   START_Z,
@@ -13,10 +15,12 @@ import {
   type HudSnapshot,
 } from "../game/types";
 import { buildForest } from "./ForestMap";
-import { setupLighting } from "./Lighting";
+import { setupLighting, updateLights, registerShadowCaster, type LightingRig } from "./Lighting";
 import { resetMaterialCache } from "./MeshFactory";
 import { Monster } from "./Monster";
+import { AudioSystem } from "./Audio";
 import { PlayerController } from "./PlayerController";
+import { setupPostProcessing } from "./PostProcessing";
 
 type SpectorLike = {
   displayUI: () => void;
@@ -41,6 +45,8 @@ export class Game {
   private _devDebugCleanup: (() => void) | null = null;
   private _logicState = createInitialGameLogicState();
   private _recatchGraceUntilMs = 0;
+  private _lightingRig: LightingRig | null = null;
+  private _audio: AudioSystem | null = null;
 
   // Callbacks for React integration
   onDebug: ((info: string) => void) | null = null;
@@ -66,12 +72,21 @@ export class Game {
     this._scene.collisionsEnabled = true;
 
     // Set up world
-    setupLighting(this._scene);
+    this._lightingRig = setupLighting(this._scene);
     buildForest(this._scene);
 
     // Player + monster
     this._player = new PlayerController(this._scene, START_Z);
     this._monster = new Monster(this._scene, new Vector3(0, 1.6, START_Z + 55));
+
+    // Register monster as shadow caster
+    registerShadowCaster(this._lightingRig, this._monster.bodyMesh);
+
+    // Post-processing pipeline
+    setupPostProcessing(this._scene, this._player.camera);
+
+    // Audio system
+    this._audio = new AudioSystem();
 
     this._setPhase(GamePhase.PLAYING);
     await this._setupDevDebugTools();
@@ -97,6 +112,7 @@ export class Game {
           break;
       }
 
+      if (this._lightingRig) updateLights(this._lightingRig, performance.now());
       this._emitDebug();
       this._emitHud();
       this._scene.render();
@@ -106,6 +122,13 @@ export class Game {
   private _updatePlaying(dtSeconds: number): void {
     this._player.update();
     this._monster.update(this._player.position, dtSeconds, true);
+
+    // Audio updates
+    if (this._audio) {
+      const monsterDist = this._monster.distanceToPlayer(this._player.position);
+      this._audio.updateHeartbeat(monsterDist, dtSeconds);
+      this._audio.updateFootsteps(this._player.isMoving, dtSeconds);
+    }
 
     // Check finish zone first.
     const pz = this._player.position.z;
@@ -142,6 +165,8 @@ export class Game {
   }
 
   private _handlePlayerCaught(nowMs: number): void {
+    this._player.shake(CATCH_SHAKE_INTENSITY, CATCH_SHAKE_DURATION_MS);
+    this._audio?.playCatchSting();
     this._player.freeze();
     this._monster.freeze();
     this._setPhase(GamePhase.ARGUMENT);
@@ -192,6 +217,9 @@ export class Game {
   private _setPhase(phase: GamePhase): void {
     if (this._phase === phase) return;
     this._phase = phase;
+    if (phase === GamePhase.PLAYING) {
+      this._audio?.resume();
+    }
     this.onPhaseChange?.(phase);
   }
 
@@ -326,6 +354,8 @@ export class Game {
     this._devDebugCleanup?.();
     this._devDebugCleanup = null;
     this._engine.stopRenderLoop();
+    this._audio?.dispose();
+    this._audio = null;
     this._player?.dispose();
     this._monster?.dispose();
     this._scene?.dispose();

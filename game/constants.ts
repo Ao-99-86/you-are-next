@@ -41,7 +41,37 @@ export const START_Z = -(MAP_DEPTH / 2 - 20);
 export const FINISH_Z = MAP_DEPTH / 2 - 10;
 
 // Fog
-export const FOG_DENSITY = 0.012;
+export const FOG_DENSITY = 0.035;
 
 // Gravity
 export const GRAVITY = -2.8;
+
+// Phase 3 — Textures
+export const TEXTURE_SIZE = 64;
+
+// Phase 3 — Lighting
+export const HEMI_INTENSITY = 0.3;
+export const SHADOW_MAP_SIZE = 1024;
+export const FLICKER_LIGHT_COUNT = 6;
+export const FLICKER_LIGHT_RANGE = 18;
+
+// Phase 3 — Post-processing
+export const GRAIN_INTENSITY = 25;
+export const VIGNETTE_WEIGHT = 3.5;
+
+// Phase 3 — Camera feel
+export const HEAD_BOB_FREQUENCY = 8.0;
+export const HEAD_BOB_AMPLITUDE = 0.06;
+export const CATCH_SHAKE_INTENSITY = 0.3;
+export const CATCH_SHAKE_DURATION_MS = 500;
+
+// Phase 3 — Forest
+export const FALLEN_LOG_COUNT = 18;
+export const ROCK_COUNT = 60;
+
+// Phase 3 — Audio
+export const HEARTBEAT_MAX_INTERVAL = 2.0;
+export const HEARTBEAT_MIN_INTERVAL = 0.4;
+export const HEARTBEAT_MAX_DISTANCE = 40;
+export const FOOTSTEP_INTERVAL = 0.35;
+export const AMBIENT_VOLUME = 0.08;

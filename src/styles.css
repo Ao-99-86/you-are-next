@@ -123,10 +123,32 @@ html, body, #root {
   padding: 16px;
 }
 
-.monster-chat-card h2 {
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  33% { opacity: 0.88; }
+  66% { opacity: 0.95; }
+  82% { opacity: 0.85; }
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: #7f1212; box-shadow: 0 0 25px rgba(180, 12, 12, 0.4); }
+  50% { border-color: #a01818; box-shadow: 0 0 40px rgba(200, 12, 12, 0.6); }
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.monster-chat-card {
+  animation: pulse-border 3s ease-in-out infinite;
+}
+
+.monster-chat-title {
   font-size: 18px;
   letter-spacing: 0.08em;
   color: #d24747;
+  animation: flicker 2.5s ease-in-out infinite;
 }
 
 .monster-chat-meta {
@@ -160,6 +182,14 @@ html, body, #root {
 .monster-line {
   color: #df7878;
   margin-bottom: 4px;
+  text-shadow: 0 0 8px rgba(200, 0, 0, 0.3);
+  letter-spacing: 0.04em;
+}
+
+.typewriter-cursor {
+  animation: blink-cursor 0.8s step-end infinite;
+  color: #d24747;
+  font-weight: bold;
 }
 
 .player-line {

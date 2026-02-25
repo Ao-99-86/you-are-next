@@ -6,10 +6,16 @@ import {
   Color3,
   TransformNode,
 } from "@babylonjs/core";
+import {
+  createBarkTexture,
+  createCanopyTexture,
+  createGroundTexture,
+  createRockTexture,
+} from "./ProceduralTextures";
 
-function darkPBR(name: string, scene: Scene, r: number, g: number, b: number): PBRMaterial {
+function darkPBR(name: string, scene: Scene): PBRMaterial {
   const mat = new PBRMaterial(name, scene);
-  mat.albedoColor = new Color3(r, g, b);
+  mat.albedoColor = Color3.White();
   mat.roughness = 0.95;
   mat.metallic = 0;
   return mat;
@@ -22,28 +28,32 @@ let _rockMat: PBRMaterial | null = null;
 
 function barkMat(scene: Scene) {
   if (!_barkMat || _barkMat.getScene() !== scene) {
-    _barkMat = darkPBR("bark", scene, 0.2, 0.14, 0.08);
+    _barkMat = darkPBR("bark", scene);
+    _barkMat.albedoTexture = createBarkTexture(scene);
   }
   return _barkMat;
 }
 
 function canopyMat(scene: Scene) {
   if (!_canopyMat || _canopyMat.getScene() !== scene) {
-    _canopyMat = darkPBR("canopy", scene, 0.09, 0.18, 0.08);
+    _canopyMat = darkPBR("canopy", scene);
+    _canopyMat.albedoTexture = createCanopyTexture(scene);
   }
   return _canopyMat;
 }
 
 function groundMat(scene: Scene) {
   if (!_groundMat || _groundMat.getScene() !== scene) {
-    _groundMat = darkPBR("ground", scene, 0.15, 0.13, 0.09);
+    _groundMat = darkPBR("ground", scene);
+    _groundMat.albedoTexture = createGroundTexture(scene);
   }
   return _groundMat;
 }
 
 function rockMat(scene: Scene) {
   if (!_rockMat || _rockMat.getScene() !== scene) {
-    _rockMat = darkPBR("rock", scene, 0.18, 0.18, 0.18);
+    _rockMat = darkPBR("rock", scene);
+    _rockMat.albedoTexture = createRockTexture(scene);
   }
   return _rockMat;
 }
@@ -109,6 +119,28 @@ export function createRock(
   rock.checkCollisions = true;
   rock.parent = parent;
   return rock;
+}
+
+export function createFallenLog(
+  scene: Scene,
+  x: number,
+  z: number,
+  length: number,
+  rotation: number,
+  parent: TransformNode
+): Mesh {
+  const log = MeshBuilder.CreateCylinder(
+    "fallenLog",
+    { diameter: 0.4 + Math.random() * 0.3, height: length, tessellation: 6 },
+    scene
+  );
+  log.position.set(x, 0.2, z);
+  log.rotation.z = Math.PI / 2;
+  log.rotation.y = rotation;
+  log.material = barkMat(scene);
+  log.checkCollisions = true;
+  log.parent = parent;
+  return log;
 }
 
 export function createWall(

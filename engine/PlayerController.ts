@@ -21,6 +21,8 @@ import {
   MOUSE_SENSITIVITY,
   LOOKSPRING_STRENGTH,
   GRAVITY,
+  HEAD_BOB_FREQUENCY,
+  HEAD_BOB_AMPLITUDE,
 } from "../game/constants";
 
 export class PlayerController {
@@ -47,8 +49,21 @@ export class PlayerController {
   private _frozen = false;
   private _spectatorTarget: (() => Vector3) | null = null;
 
+  // Head bob
+  private _bobTime = 0;
+  private _bobOffset = 0;
+
+  // Camera shake
+  private _shakeIntensity = 0;
+  private _shakeDurationMs = 0;
+  private _shakeStartMs = 0;
+
   get position(): Vector3 {
     return this._mesh.position;
+  }
+
+  get camera(): UniversalCamera {
+    return this._camera;
   }
 
   get isPointerLocked(): boolean {
@@ -61,6 +76,16 @@ export class PlayerController {
 
   get pitch(): number {
     return this._pitch;
+  }
+
+  get isMoving(): boolean {
+    return Math.abs(this._inputH) > 0.1 || Math.abs(this._inputV) > 0.1;
+  }
+
+  shake(intensity: number, durationMs: number): void {
+    this._shakeIntensity = intensity;
+    this._shakeDurationMs = durationMs;
+    this._shakeStartMs = performance.now();
   }
 
   constructor(scene: Scene, startZ: number) {
@@ -177,6 +202,9 @@ export class PlayerController {
   }
 
   update(): void {
+    // Camera shake runs even when frozen
+    this._updateShake();
+
     if (this._frozen) {
       if (this._spectatorTarget) {
         const target = this._spectatorTarget();
@@ -257,6 +285,35 @@ export class PlayerController {
       0.4
     );
     this._camRoot.rotation.y = this._yaw;
+
+    // Head bob
+    if (inputMagnitude > 0.1 && this._grounded) {
+      this._bobTime += dt * HEAD_BOB_FREQUENCY;
+      this._bobOffset = Math.sin(this._bobTime) * HEAD_BOB_AMPLITUDE * inputMagnitude;
+    } else {
+      // Fade bob out smoothly
+      this._bobOffset *= 0.85;
+      if (Math.abs(this._bobOffset) < 0.001) {
+        this._bobOffset = 0;
+        this._bobTime = 0;
+      }
+    }
+    this._camRoot.position.y += this._bobOffset;
+  }
+
+  private _updateShake(): void {
+    if (this._shakeIntensity <= 0) return;
+    const elapsed = performance.now() - this._shakeStartMs;
+    if (elapsed >= this._shakeDurationMs) {
+      this._shakeIntensity = 0;
+      this._camera.position.x = 0;
+      this._camera.position.y = 2;
+      return;
+    }
+    const decay = 1 - elapsed / this._shakeDurationMs;
+    const intensity = this._shakeIntensity * decay;
+    this._camera.position.x = (Math.random() - 0.5) * 2 * intensity;
+    this._camera.position.y = 2 + (Math.random() - 0.5) * 2 * intensity;
   }
 
   private _isGrounded(): boolean {
