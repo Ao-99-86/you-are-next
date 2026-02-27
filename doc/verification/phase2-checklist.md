@@ -4,7 +4,7 @@ This checklist gates entry into Phase 2.5. Phase 2.5 work must not start until a
 
 ## Sources of Truth
 
-- `README.md` (Phase 2 Work + Testable sections)
+- `doc/roadmap/phase-details.md` (Phase 2 Work + Testable sections)
 - `CLAUDE.md` (current architecture and command references)
 - Current implementation in `src/`, `engine/`, `game/`, and `party/`
 

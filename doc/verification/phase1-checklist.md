@@ -4,7 +4,7 @@ This checklist gates entry into Phase 2. Phase 2 work must not start until all r
 
 ## Sources of Truth
 
-- `README.md` (Phase 1 Work + Testable sections)
+- `doc/roadmap/phase-details.md` (Phase 1 Work + Testable sections)
 - `CLAUDE.md` (current architecture and command references)
 - Current implementation in `src/`, `engine/`, `game/`, and `party/`
 

@@ -4,7 +4,7 @@ This checklist gates entry into Phase 4. Phase 4 work must not start until all r
 
 ## Sources of Truth
 
-- `README.md` (Phase 3 Work + Testable sections)
+- `doc/roadmap/phase-details.md` (Phase 3 Work + Testable sections)
 - `CLAUDE.md` (current architecture and command references)
 - Current implementation in `src/`, `engine/`, `game/`, `public/`, and `party/`
 - Babylon.js docs/API references validated through Babylon MCP server

@@ -116,7 +116,7 @@ Implementation Plan (Decision Complete)
   - eaten-player assist changes target behavior signal
   - game-over sync across both clients
   - no console/page errors
-- Add docs/verification/phase4-checklist.md and update README phase matrix/TODO queue when done.
+- Add doc/verification/phase4-checklist.md and update README phase matrix/TODO queue when done.
 
 Test Cases and Scenarios
 1. Room lifecycle
