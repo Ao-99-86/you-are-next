@@ -4,6 +4,8 @@
 
 Phase 4 (complete, all gates GO) established authoritative multiplayer via PartyKit. Phase 5 fills empty lobby slots with server-simulated bot players and upgrades monster dialogue using Azure OpenAI, with deterministic fallback when Azure is absent.
 
+Azure API scope decision for Phase 5: use GA v1 chat completions (`/openai/v1/chat/completions`) now. Do not append dated `api-version` query params on this path.
+
 **Goal:** A single human player can start a game, bots fill remaining slots, bots move/fight/argue autonomously, and the monster uses LLM-generated replies when Azure is configured.
 
 ---
@@ -18,6 +20,7 @@ Phase 4 (complete, all gates GO) established authoritative multiplayer via Party
 | `game/chat.ts` | Reuse `evaluateResponse`, `WINNING_SAMPLE_MESSAGES`, `MONSTER_TAUNTS` |
 | `engine/PuppetController.ts` | No changes — bots render as puppets automatically |
 | `engine/MultiplayerGame.ts` | No changes — `_syncPuppets()` handles bots from snapshot |
+| `src/components/Lobby.tsx` | Update start-gating UI for solo start (min 1 connected ready player) |
 | `scripts/verify-phase4-authority.mjs` | Pattern source for Phase 5 bots script |
 | `doc/verification/phase4-checklist.md` | Template for Phase 5 checklist |
 
@@ -54,9 +57,9 @@ Add `isBot: boolean` as a required field (not optional — forces all constructi
 
 Server-side only (never imported by client). Uses `fetch()` directly — no Azure SDK needed.
 
-- `getAzureConfig()` — reads `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT_NAME`, `AZURE_OPENAI_API_VERSION` from `process.env`; returns null if any required var is absent
+- `getAzureConfig()` — reads `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT_NAME` from `process.env`; returns null if any required var is absent
 - `isAzureConfigured()` — synchronous check, cheap to call in tick loop
-- `callAzureChat(systemPrompt, userPrompt, maxTokens, temperature)` — POST to `{endpoint}/openai/deployments/{deployment}/chat/completions?api-version={version}`; 8-second `AbortSignal.timeout`; returns `string | null`
+- `callAzureChat(systemPrompt, userPrompt, maxTokens, temperature)` — normalize endpoint (strip trailing `/`), POST to `{endpoint}/openai/v1/chat/completions` with `Content-Type: application/json` and `api-key` header; body includes `model: AZURE_OPENAI_DEPLOYMENT_NAME`; 8-second `AbortSignal.timeout`; returns `string | null`
 - `generateMonsterReply(roundIndex, playerMessage, points)` — dynamic monster taunts; tone varies by score bracket
 - `generateBotChatMessage(roundIndex)` — generates pleading bot survival message
 
@@ -100,6 +103,11 @@ After deterministic reply is computed and broadcast, fire-and-forget LLM call:
 
 **m. `_removeBots()` (new):** Delete all `isBot` entries from `_players`. Called at start of `_endGame()` before broadcast.
 
+**n. `src/components/Lobby.tsx` — start gating update:**
+- Enable host start when `connectedPlayers.length >= 1 && connectedPlayers.every((p) => p.isReady)`
+- Update hint text from "min 2 players" to "min 1 player"
+- Keep host-only start button behavior unchanged
+
 ### 6. New file: `scripts/verify-phase5-bots.mjs`
 
 Authority-style Node/PartySocket script (no browser). Reuses `RoomClient`, `spawnProcess`, `killProcess`, `waitForServer` pattern from `verify-phase4-authority.mjs`.
@@ -121,7 +129,7 @@ Lightweight smoke test (no server needed). Uses `tsx` for TypeScript import.
 - `generateMonsterReply()` → null with no env vars
 - `resolveBotChatMessage(..., () => null)` → non-empty deterministic fallback
 - `pickDeterministicBotMessage(i)` → non-empty for i=0,1,2
-- If `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_API_KEY` are set: live call returns non-null string
+- If `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_DEPLOYMENT_NAME` are set: live call returns non-null string
 
 ### 8. `package.json` — Add scripts
 
@@ -158,12 +166,14 @@ Dependencies must be respected for `typecheck` to pass:
 2. `game/types.ts`
 3. `party/aiPlayers.ts`
 4. `party/azureChat.ts`
-5. `party/index.ts` ← run `verify:phase5:static` here
-6. `scripts/verify-phase5-bots.mjs`
-7. `scripts/verify-phase5-azure.mjs`
-8. `doc/verification/phase5-checklist.md`
-9. `package.json` (scripts + tsx dep)
-10. Doc updates (phase-matrix, todo-queue, phase-details)
+5. `party/index.ts`
+6. `src/components/Lobby.tsx`
+7. Run `verify:phase5:static`
+8. `scripts/verify-phase5-bots.mjs`
+9. `scripts/verify-phase5-azure.mjs`
+10. `doc/verification/phase5-checklist.md`
+11. `package.json` (scripts + tsx dep)
+12. Doc updates (phase-matrix, todo-queue, phase-details)
 
 ---
 
@@ -185,4 +195,4 @@ npm run verify:phase5:bots
 npm run verify:phase5:azure
 ```
 
-Manual smoke: open `/lobby/:roomId`, join solo, start game — verify bot players appear and move in the 3D scene (rendered as puppets via existing `MultiplayerGame._syncPuppets()` + `PuppetController`). Confirmed: `Vector3.Lerp` API used for puppet interpolation is valid (babylon-mcp verified).
+Manual smoke: open `/lobby/:roomId`, join solo, mark ready, start game (host start should be enabled at 1 ready player) — verify bot players appear and move in the 3D scene (rendered as puppets via existing `MultiplayerGame._syncPuppets()` + `PuppetController`). Confirmed: `Vector3.Lerp` API used for puppet interpolation is valid (babylon-mcp verified).
