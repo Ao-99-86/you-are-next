@@ -288,6 +288,179 @@ html, body, #root {
   color: #111;
 }
 
+/* ── Lobby ───────────────────────────────────────────────────────── */
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+}
+
+.lobby h1 {
+  font-size: 2.4rem;
+  color: #cc2222;
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 20px rgba(200, 0, 0, 0.5);
+}
+
+.lobby-room-id {
+  font-size: 0.85rem;
+  opacity: 0.5;
+  letter-spacing: 0.08em;
+}
+
+.lobby-name-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+
+.lobby-name-form input {
+  background: #111;
+  border: 1px solid #3a3a3a;
+  color: #ddd;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  width: 220px;
+}
+
+.lobby-name-form input:focus {
+  outline: 1px solid #8a1d1d;
+  border-color: #8a1d1d;
+}
+
+.lobby-name-form button {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #cc2222;
+  color: #c8c8c8;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.lobby-name-form button:hover:not(:disabled) {
+  background: #cc2222;
+  color: #0a0a0a;
+}
+
+.lobby-name-form button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lobby-players {
+  min-width: 280px;
+  border: 1px solid rgba(160, 20, 20, 0.5);
+  background: rgba(5, 5, 5, 0.72);
+  padding: 14px 16px;
+}
+
+.lobby-players h3 {
+  color: #d24747;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  letter-spacing: 0.06em;
+}
+
+.lobby-players ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lobby-player-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.lobby-player-name {
+  color: #d8d8d8;
+}
+
+.lobby-host-badge {
+  color: #cc8822;
+  font-size: 0.75rem;
+}
+
+.lobby-ready.ready {
+  color: #44cc44;
+}
+
+.lobby-ready.not-ready {
+  color: #888;
+}
+
+.lobby-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.lobby-ready-btn,
+.lobby-start-btn {
+  padding: 10px 24px;
+  background: transparent;
+  border: 1px solid #cc2222;
+  color: #c8c8c8;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.lobby-ready-btn:hover,
+.lobby-start-btn:hover:not(:disabled) {
+  background: #cc2222;
+  color: #0a0a0a;
+}
+
+.lobby-start-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lobby-hint {
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+/* ── Assist Panel (eaten player) ───────────────────────────────── */
+
+.assist-panel {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 14;
+  display: flex;
+  gap: 8px;
+  background: rgba(5, 5, 5, 0.8);
+  border: 1px solid rgba(160, 20, 20, 0.5);
+  padding: 8px 12px;
+}
+
+.assist-panel button {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #8a1d1d;
+  color: #ddd;
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.assist-panel button:hover {
+  background: #8a1d1d;
+  color: #111;
+}
+
 @media (max-width: 680px) {
   .monster-chat-card {
     width: 95vw;

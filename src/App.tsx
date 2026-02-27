@@ -1,13 +1,23 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
+import { nanoid } from "nanoid";
 import BabylonCanvas from "./components/BabylonCanvas";
+import Lobby from "./components/Lobby";
+import MultiplayerCanvas from "./components/MultiplayerCanvas";
 
 function Landing() {
   const navigate = useNavigate();
+
+  const handleMultiplayer = () => {
+    const roomId = nanoid(8);
+    navigate(`/lobby/${roomId}`);
+  };
+
   return (
     <div className="landing">
       <h1>YOU ARE NEXT</h1>
       <p>Run. Hide. Argue for your life.</p>
-      <button onClick={() => navigate("/play")}>Play</button>
+      <button onClick={() => navigate("/play")}>Solo</button>
+      <button onClick={handleMultiplayer}>Multiplayer</button>
     </div>
   );
 }
@@ -17,6 +27,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/play" element={<BabylonCanvas />} />
+      <Route path="/lobby/:roomId" element={<Lobby />} />
+      <Route path="/play/:roomId" element={<MultiplayerCanvas />} />
     </Routes>
   );
 }

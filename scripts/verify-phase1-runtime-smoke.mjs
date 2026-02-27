@@ -88,7 +88,7 @@ async function main() {
 
   try {
     await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded" });
-    await page.getByRole("button", { name: "Play" }).click();
+    await page.getByRole("button", { name: /solo|play/i }).first().click();
     await page.waitForFunction(
       () => {
         const overlay = document.querySelector(".debug-overlay");

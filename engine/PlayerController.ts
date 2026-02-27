@@ -83,6 +83,14 @@ export class PlayerController {
     return Math.abs(this._inputH) > 0.1 || Math.abs(this._inputV) > 0.1;
   }
 
+  get inputH(): number {
+    return this._inputH;
+  }
+
+  get inputV(): number {
+    return this._inputV;
+  }
+
   shake(intensity: number, durationMs: number): void {
     this._shakeIntensity = intensity;
     this._shakeDurationMs = durationMs;

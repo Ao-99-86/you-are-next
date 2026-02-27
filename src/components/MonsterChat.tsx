@@ -6,6 +6,7 @@ interface MonsterChatProps {
   session: ArgumentSession | null;
   secondsRemaining: number;
   onSubmit: (message: string) => void;
+  isActiveTyper?: boolean;
 }
 
 function useTypewriter(text: string, speedMs = 30): string {
@@ -28,6 +29,7 @@ export default function MonsterChat({
   session,
   secondsRemaining,
   onSubmit,
+  isActiveTyper = true,
 }: MonsterChatProps) {
   const [message, setMessage] = useState("");
   const activeRound = useMemo(() => {
@@ -91,16 +93,22 @@ export default function MonsterChat({
               {typewriterText}
               <span className="typewriter-cursor">|</span>
             </p>
-            <form onSubmit={onFormSubmit} className="monster-chat-form">
-              <input
-                value={message}
-                onChange={(evt) => setMessage(evt.target.value)}
-                placeholder="Type your defense..."
-                autoFocus
-                maxLength={220}
-              />
-              <button type="submit">Send</button>
-            </form>
+            {isActiveTyper ? (
+              <form onSubmit={onFormSubmit} className="monster-chat-form">
+                <input
+                  value={message}
+                  onChange={(evt) => setMessage(evt.target.value)}
+                  placeholder="Type your defense..."
+                  autoFocus
+                  maxLength={220}
+                />
+                <button type="submit">Send</button>
+              </form>
+            ) : (
+              <p className="monster-chat-result" style={{ opacity: 0.6 }}>
+                WATCHING...
+              </p>
+            )}
           </div>
         )}
 

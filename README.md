@@ -26,25 +26,28 @@ Product constraints:
 
 ## 2) Current Progress Snapshot
 
-Latest verified state (`2026-02-24 23:25 PST`):
+Latest verified state (`2026-02-27 15:12 PST`):
 
 - Phase 1 gate: GO (`docs/verification/phase1-checklist.md`)
 - Phase 2 gate: GO (`docs/verification/phase2-checklist.md`)
 - Phase 2.5 gate: GO (`docs/verification/phase25-checklist.md`)
 - Phase 3 gate: GO (`docs/verification/phase3-checklist.md`)
 - Phase 3 automated gates: PASS (`verify:phase3:static`, `verify:phase3:runtime-smoke`)
-- Phase 4 entry: UNBLOCKED (per `docs/verification/phase3-checklist.md`)
+- Phase 4 static gate: PASS (`verify:phase4:static`)
+- Phase 4 runtime smoke gate: PASS (`verify:phase4:runtime-smoke`)
+- Phase 4 authority gate: PASS (`verify:phase4:authority`)
+- Phase 4 gate decision: GO (`docs/verification/phase4-checklist.md`)
 
-Current Phase 3 open items:
+Current Phase 4 open items:
 
-- None. Phase 3 checklist is complete and Phase 4 is unblocked.
+- None. Phase 4 gate is GO and Phase 5 entry is unblocked.
 
 ## 3) Stack and Runtime
 
 - Frontend: Vite + React 19 + TypeScript
 - 3D engine: BabylonJS (`@babylonjs/core`)
-- Multiplayer backend (planned): PartyKit
-- Network client (planned): PartySocket
+- Multiplayer backend: PartyKit
+- Network client: PartySocket
 - Runtime automation: Playwright (`@playwright/test`) via node scripts
 - Debug tooling: `@babylonjs/inspector`, `spectorjs`, Chrome DevTools MCP (used only by Codex model), Playwright MCP, babylon-mcp
 
@@ -55,15 +58,21 @@ src/
   main.tsx
   App.tsx
   styles.css
+  hooks/
+    useGameRoom.ts
   components/
     BabylonCanvas.tsx
+    MultiplayerCanvas.tsx
+    Lobby.tsx
     HUD.tsx
     MonsterChat.tsx
     GameOverScreen.tsx
 
 engine/
   Game.ts
+  MultiplayerGame.ts
   PlayerController.ts
+  PuppetController.ts
   Monster.ts
   ForestMap.ts
   MeshFactory.ts
@@ -86,12 +95,15 @@ scripts/
   verify-phase2-runtime-smoke.mjs
   verify-phase25-runtime-smoke.mjs
   verify-phase3-runtime-smoke.mjs
+  verify-phase4-authority.mjs
+  verify-phase4-runtime-smoke.mjs
 
 docs/verification/
   phase1-checklist.md
   phase2-checklist.md
   phase25-checklist.md
   phase3-checklist.md
+  phase4-checklist.md
 ```
 
 ## 5) Environment and Config
@@ -175,6 +187,9 @@ Current scripts in `package.json`:
 - `npm run verify:phase25:runtime-smoke`
 - `npm run verify:phase3:static`
 - `npm run verify:phase3:runtime-smoke`
+- `npm run verify:phase4:static`
+- `npm run verify:phase4:authority`
+- `npm run verify:phase4:runtime-smoke`
 - `npm run party:dev`
 - `npm run party:deploy`
 
@@ -190,7 +205,7 @@ This section replaces prior plan-file content. Keep this updated as work progres
 | 2 | Monster + catch + argument loop | Complete | GO (`docs/verification/phase2-checklist.md`) |
 | 2.5 | Controls modernization (WASD strafe + mouse look) | Complete | GO (`docs/verification/phase25-checklist.md`) |
 | 3 | Polish and atmosphere | Complete | GO (`docs/verification/phase3-checklist.md`) |
-| 4 | Multiplayer (PartyKit) | Not started | Unblocked (entry GO) |
+| 4 | Multiplayer (PartyKit) | Complete | GO (`docs/verification/phase4-checklist.md`) |
 | 5 | AI players + Azure LLM chat | Not started | Planned |
 | 6 | Deployment + invite gating | Not started | Planned |
 
@@ -347,9 +362,28 @@ Testable outcomes:
 - Shared chat visibility with single active typer when caught.
 - Correct end conditions.
 
-Implementation status:
+Implementation status (actual):
 
-- Not started.
+- Implemented:
+  - `game/types.ts` expanded with `RoomPhase`, `PlayerLifeState`, `NetworkPlayerState`, `NetworkMonsterState`, `NetworkArgumentState`, `RoomSnapshot`, `ClientMessage`, `ServerMessage`, `RoomEvent`
+  - `party/index.ts` rewritten as authoritative server with 20 Hz tick, pure-math monster AI, argument scoring, room lifecycle, assist mechanic
+  - `party/index.ts` now restores reconnecting players via stable `clientId` identity and broadcasts immediate disconnect snapshots
+  - `src/hooks/useGameRoom.ts` — PartySocket connection hook with snapshot state, input loop, API methods, and per-session stable `clientId`
+  - `engine/PuppetController.ts` — remote player mesh with `Vector3.Lerp` interpolation
+  - `engine/MultiplayerGame.ts` — network-driven game loop rendering from server snapshots
+  - `src/components/Lobby.tsx` — room lobby UI with name entry, player list, ready/start, host derivation from `snapshot.hostId`
+  - `src/components/MultiplayerCanvas.tsx` — React bridge for multiplayer game
+  - `src/App.tsx` updated with `/lobby/:roomId` and `/play/:roomId` routes
+  - `src/components/MonsterChat.tsx` updated with `isActiveTyper` prop for input gating
+  - `src/components/HUD.tsx` updated with eaten-player assist UI
+  - `scripts/verify-phase4-runtime-smoke.mjs` — two-client Playwright automation
+  - `scripts/verify-phase4-authority.mjs` — server-authority checks (host gating, disconnect/host-handoff/reconnect, argument/chat permissions)
+  - `docs/verification/phase4-checklist.md` — gate checklist
+- Gate status:
+  - Static gate: PASS (`verify:phase4:static`)
+  - Runtime smoke gate: PASS (`verify:phase4:runtime-smoke`)
+  - Authority gate: PASS (`verify:phase4:authority`)
+  - Phase gate decision: GO (Phase 5 entry unblocked)
 
 ### Phase 5: AI Players and Azure LLM
 
@@ -422,24 +456,25 @@ After each phase implementation:
 - `scripts/verify-phase2-runtime-smoke.mjs`
 - `scripts/verify-phase25-runtime-smoke.mjs`
 - `scripts/verify-phase3-runtime-smoke.mjs`
+- `scripts/verify-phase4-runtime-smoke.mjs`
+- `scripts/verify-phase4-authority.mjs`
 - phase-specific manual/MCP checks documented in `docs/verification/phaseX-checklist.md`
 
 ## 10) Current Risks and Drifts
 
 1. Headless runtime variability:
-   - Audio/camera behavior can vary by browser environment; keep automated gate plus manual evidence.
-2. Debug tooling noise:
-   - Spector warnings can pollute console cleanliness checks
-3. Documentation consistency:
-   - planning/progress must be updated here, not in external plan files
+   - Audio/camera behavior can vary by browser environment; keep automated gates plus checklist evidence.
+2. Large bundle warning:
+   - Build outputs a chunk-size warning (`index` chunk > 500 kB); not a release blocker but a performance follow-up.
 
 ## 11) Active TODO Queue (Execution Order)
 
-Phase 4 execution queue:
+Phase 5 entry queue:
 
-1. Expand shared game types/state for multiplayer.
-2. Rewrite `party/index.ts` as authoritative server tick/broadcast.
-3. Build room/network hook (`useGameRoom`) plus remote-player interpolation path.
+1. Keep Phase 4 gates green in CI/local (`verify:phase4:static`, `verify:phase4:runtime-smoke`, `verify:phase4:authority`).
+2. Start Phase 5 AI player simulation path in PartyKit server loop.
+3. Add Azure chat integration with deterministic fallback.
+4. Define Phase 5 runtime/authority verification checklist and automation.
 
 ## 12) Agent Workflow Contract
 
@@ -455,10 +490,17 @@ Every agent touching roadmap or progress must:
 
 ## 13) Fast Navigation
 
-- Engine orchestrator: `engine/Game.ts`
+- Engine orchestrator (single-player): `engine/Game.ts`
+- Engine orchestrator (multiplayer): `engine/MultiplayerGame.ts`
 - Input/camera: `engine/PlayerController.ts`
+- Remote player puppets: `engine/PuppetController.ts`
 - Monster logic: `engine/Monster.ts`
 - Chat scoring: `game/chat.ts`
 - Reducer: `game/logic.ts`
-- React bridge: `src/components/BabylonCanvas.tsx`
-- Current gate status: `docs/verification/phase3-checklist.md`
+- Network types: `game/types.ts`
+- React bridge (single-player): `src/components/BabylonCanvas.tsx`
+- React bridge (multiplayer): `src/components/MultiplayerCanvas.tsx`
+- Network hook: `src/hooks/useGameRoom.ts`
+- Lobby: `src/components/Lobby.tsx`
+- Authoritative server: `party/index.ts`
+- Current gate status: `docs/verification/phase4-checklist.md`
