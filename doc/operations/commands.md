@@ -30,6 +30,11 @@ Command reference for development, static gates, runtime smoke checks, and multi
 - `npm run verify:phase4:authority`
 - `npm run verify:phase5:bots`          ← bot spawn, movement, argument auto-resolve
 - `npm run verify:phase5:azure`         ← Azure config detection + deterministic fallback
+- `npm run verify:phase6:invite`        ← invite gating (reject invalid, accept valid)
+
+## Phase Static Gates (continued)
+
+- `npm run verify:phase6:static`
 
 ## PartyKit
 

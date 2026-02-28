@@ -20,7 +20,7 @@ As of `2026-02-27`:
 
 Current open items:
 
-- None. Phase 5 gate is GO and Phase 6 entry is unblocked.
+- Phase 6 implementation in progress. Invite gating code complete; awaiting verification gates and deployment.
 
 ## Matrix
 
@@ -32,4 +32,4 @@ Current open items:
 | 3 | Polish and atmosphere | Complete | GO (`doc/verification/phase3-checklist.md`) |
 | 4 | Multiplayer (PartyKit) | Complete | GO (`doc/verification/phase4-checklist.md`) |
 | 5 | AI players + Azure LLM chat | Complete | GO (`doc/verification/phase5-checklist.md`) |
-| 6 | Deployment + invite gating | Not started | Planned |
+| 6 | Deployment + invite gating | In progress | Pending (`doc/verification/phase6-checklist.md`) |

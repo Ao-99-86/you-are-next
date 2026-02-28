@@ -236,6 +236,15 @@ Testable outcomes:
 - Invalid codes rejected.
 - Multiplayer works over internet.
 
-Implementation status:
+Implementation status (actual):
 
-- Not started.
+- Implemented:
+  - `game/types.ts` extended `JOIN_ROOM` ClientMessage with `inviteCode?: string`
+  - `party/index.ts` validates `INVITE_SECRET` env var at top of `_handleJoinRoom`; rejects with `INVITE_INVALID` when set and code is missing/wrong; skips validation in dev (no secret)
+  - `src/hooks/useGameRoom.ts` `connect()` accepts and forwards `inviteCode` parameter; exposes `error` state
+  - `src/components/Lobby.tsx` reads `?invite=CODE` from URL search params; shows invite code input when not provided; displays `INVITE_INVALID` error with retry
+  - `src/App.tsx` Landing page includes invite code input; embeds code in lobby URL query param
+  - `scripts/verify-phase6-invite.mjs` provides invite gating verification (spawns PartyKit with `INVITE_SECRET`, tests reject/accept)
+  - `doc/verification/phase6-checklist.md` contains gate checklist
+- Gate status:
+  - Awaiting verification gates and deployment.

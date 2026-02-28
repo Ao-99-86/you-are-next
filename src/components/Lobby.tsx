@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useGameRoom } from "../hooks/useGameRoom";
 
 export default function Lobby() {
   const { roomId } = useParams<{ roomId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const room = useGameRoom({
     onSnapshot: (snap) => {
@@ -13,12 +14,15 @@ export default function Lobby() {
     },
   });
 
+  const inviteParam = searchParams.get("invite") ?? "";
+  const [invite, setInvite] = useState(inviteParam);
+  const [inviteConfirmed, setInviteConfirmed] = useState(!!inviteParam);
   const [name, setName] = useState("");
   const [joined, setJoined] = useState(false);
 
   const handleJoin = () => {
     if (!roomId || !name.trim()) return;
-    room.connect(roomId, name.trim());
+    room.connect(roomId, name.trim(), invite || undefined);
     setJoined(true);
   };
 
@@ -39,6 +43,64 @@ export default function Lobby() {
       <div className="lobby">
         <h1>YOU ARE NEXT</h1>
         <p>Invalid room.</p>
+      </div>
+    );
+  }
+
+  // Invite error: reset join state so user can re-enter
+  if (room.error === "INVITE_INVALID") {
+    return (
+      <div className="lobby">
+        <h1>YOU ARE NEXT</h1>
+        <p className="lobby-room-id">Room: {roomId}</p>
+        <p className="lobby-error">Invalid invite code. Try again.</p>
+        <form
+          className="lobby-name-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (invite.trim()) {
+              setInviteConfirmed(true);
+              setJoined(false);
+            }
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Invite code..."
+            value={invite}
+            onChange={(e) => setInvite(e.target.value)}
+            autoFocus
+          />
+          <button type="submit" disabled={!invite.trim()}>
+            Retry
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // Invite code entry (when not provided via URL)
+  if (!inviteConfirmed) {
+    return (
+      <div className="lobby">
+        <h1>YOU ARE NEXT</h1>
+        <p className="lobby-room-id">Room: {roomId}</p>
+        <form
+          className="lobby-name-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setInviteConfirmed(true);
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Invite code (leave blank for dev)"
+            value={invite}
+            onChange={(e) => setInvite(e.target.value)}
+            autoFocus
+          />
+          <button type="submit">Continue</button>
+        </form>
       </div>
     );
   }

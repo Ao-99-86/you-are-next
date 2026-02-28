@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { nanoid } from "nanoid";
 import BabylonCanvas from "./components/BabylonCanvas";
@@ -6,10 +7,14 @@ import MultiplayerCanvas from "./components/MultiplayerCanvas";
 
 function Landing() {
   const navigate = useNavigate();
+  const [invite, setInvite] = useState("");
 
   const handleMultiplayer = () => {
     const roomId = nanoid(8);
-    navigate(`/lobby/${roomId}`);
+    const params = invite.trim()
+      ? `?invite=${encodeURIComponent(invite.trim())}`
+      : "";
+    navigate(`/lobby/${roomId}${params}`);
   };
 
   return (
@@ -17,6 +22,13 @@ function Landing() {
       <h1>YOU ARE NEXT</h1>
       <p>Run. Hide. Argue for your life.</p>
       <button onClick={() => navigate("/play")}>Solo</button>
+      <input
+        type="text"
+        placeholder="Invite code"
+        value={invite}
+        onChange={(e) => setInvite(e.target.value)}
+        className="landing-invite-input"
+      />
       <button onClick={handleMultiplayer}>Multiplayer</button>
     </div>
   );

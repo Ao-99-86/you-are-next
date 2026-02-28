@@ -133,7 +133,7 @@ export default class GameServer implements Party.Server {
 
     switch (msg.type) {
       case "JOIN_ROOM":
-        this._handleJoinRoom(sender, msg.name, msg.clientId);
+        this._handleJoinRoom(sender, msg.name, msg.clientId, msg.inviteCode);
         break;
       case "SET_READY":
         this._handleSetReady(sender, msg.ready);
@@ -184,8 +184,20 @@ export default class GameServer implements Party.Server {
   private _handleJoinRoom(
     conn: Party.Connection,
     name: string,
-    rawClientId?: string
+    rawClientId?: string,
+    inviteCode?: string
   ): void {
+    // Invite gating: when INVITE_SECRET is set, reject connections without a valid code.
+    // Check both process.env (deployed PartyKit) and room.env (local --var).
+    const secret =
+      process.env.INVITE_SECRET ||
+      (this.room.env as Record<string, string | undefined>).INVITE_SECRET;
+    if (secret && inviteCode !== secret) {
+      this._sendError(conn, "INVITE_INVALID", "Invalid invite code");
+      conn.close();
+      return;
+    }
+
     const now = Date.now();
     const clientId = rawClientId?.trim() || `anon_${conn.id}`;
 

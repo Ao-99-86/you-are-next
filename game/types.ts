@@ -104,7 +104,7 @@ export interface RoomSnapshot {
 
 // Client → Server messages
 export type ClientMessage =
-  | { type: "JOIN_ROOM"; roomId: string; name: string; clientId?: string }
+  | { type: "JOIN_ROOM"; roomId: string; name: string; clientId?: string; inviteCode?: string }
   | { type: "SET_READY"; ready: boolean }
   | { type: "REQUEST_START" }
   | {

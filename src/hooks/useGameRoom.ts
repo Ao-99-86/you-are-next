@@ -39,7 +39,7 @@ export interface GameRoomCallbacks {
 }
 
 export interface GameRoomAPI {
-  connect: (roomId: string, name: string) => void;
+  connect: (roomId: string, name: string, inviteCode?: string) => void;
   disconnect: () => void;
   setReady: (ready: boolean) => void;
   requestStart: () => void;
@@ -55,12 +55,14 @@ export interface GameRoomAPI {
   selfId: string | null;
   snapshot: RoomSnapshot | null;
   connected: boolean;
+  error: string | null;
 }
 
 export function useGameRoom(callbacks?: GameRoomCallbacks): GameRoomAPI {
   const [selfId, setSelfId] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
   const [connected, setConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const socketRef = useRef<PartySocket | null>(null);
   const clientIdRef = useRef<string>(getOrCreateClientId());
@@ -75,12 +77,13 @@ export function useGameRoom(callbacks?: GameRoomCallbacks): GameRoomAPI {
     }
   }, []);
 
-  const connect = useCallback((roomId: string, name: string) => {
+  const connect = useCallback((roomId: string, name: string, inviteCode?: string) => {
     // Close existing connection
     if (socketRef.current) {
       socketRef.current.close();
       socketRef.current = null;
     }
+    setError(null);
 
     const socket = new PartySocket({
       host: PARTYKIT_HOST,
@@ -95,6 +98,7 @@ export function useGameRoom(callbacks?: GameRoomCallbacks): GameRoomAPI {
         roomId,
         name,
         clientId: clientIdRef.current,
+        inviteCode,
       };
       socket.send(JSON.stringify(joinMsg));
     });
@@ -124,6 +128,7 @@ export function useGameRoom(callbacks?: GameRoomCallbacks): GameRoomAPI {
           break;
         case "ERROR":
           console.warn(`[room] Server error: ${msg.code} - ${msg.message}`);
+          setError(msg.code);
           break;
       }
     });
@@ -202,5 +207,6 @@ export function useGameRoom(callbacks?: GameRoomCallbacks): GameRoomAPI {
     selfId,
     snapshot,
     connected,
+    error,
   };
 }

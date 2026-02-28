@@ -19,6 +19,8 @@
     "verify:phase5:static": "npm run typecheck && npm run build",
     "verify:phase5:bots": "node scripts/verify-phase5-bots.mjs",
     "verify:phase5:azure": "node --import tsx/esm scripts/verify-phase5-azure.mjs",
+    "verify:phase6:static": "npm run typecheck && npm run build",
+    "verify:phase6:invite": "node scripts/verify-phase6-invite.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "party:dev": "npx partykit dev",
