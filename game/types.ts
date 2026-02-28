@@ -68,6 +68,7 @@ export type PlayerLifeState = "alive" | "caught" | "eaten" | "escaped";
 export interface NetworkPlayerState {
   id: string;
   name: string;
+  isBot: boolean;
   lifeState: PlayerLifeState;
   position: Vec3;
   yaw: number;

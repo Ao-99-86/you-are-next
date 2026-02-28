@@ -75,3 +75,9 @@ export const HEARTBEAT_MIN_INTERVAL = 0.4;
 export const HEARTBEAT_MAX_DISTANCE = 40;
 export const FOOTSTEP_INTERVAL = 0.35;
 export const AMBIENT_VOLUME = 0.08;
+
+// Phase 5 — Bots
+export const BOT_COUNT = 3;
+export const BOT_SPEED = 0.35;         // slightly slower than PLAYER_SPEED (0.45)
+export const BOT_LATERAL_DRIFT = 0.3;  // max sinusoidal lateral wander per tick
+export const BOT_FILL_TO_MAX = true;   // fill to MAX_PLAYERS on game start

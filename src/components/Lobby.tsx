@@ -31,7 +31,7 @@ export default function Lobby() {
   const hostId = room.snapshot?.hostId ?? null;
   const isHost = hostId === room.selfId;
   const allReady =
-    connectedPlayers.length >= 2 &&
+    connectedPlayers.length >= 1 &&
     connectedPlayers.every((p) => p.isReady);
 
   if (!roomId) {
@@ -132,7 +132,7 @@ export default function Lobby() {
 
       {!allReady && isHost && (
         <p className="lobby-hint">
-          All players must be ready to start (min 2 players).
+          All players must be ready to start (min 1 player).
         </p>
       )}
     </div>

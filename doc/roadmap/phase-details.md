@@ -197,9 +197,24 @@ Testable outcomes:
 - Azure path works when configured.
 - Fallback path remains operational.
 
-Implementation status:
+Implementation status (actual):
 
-- Not started.
+- Implemented:
+  - `game/constants.ts` expanded with `BOT_COUNT`, `BOT_SPEED`, `BOT_LATERAL_DRIFT`, `BOT_FILL_TO_MAX`
+  - `game/types.ts` `NetworkPlayerState` expanded with `isBot: boolean`
+  - `party/aiPlayers.ts` provides bot creation, movement tick, deterministic message picker, LLM-fallback chat resolver
+  - `party/azureChat.ts` provides Azure OpenAI chat client with config detection, monster reply generation, bot message generation
+  - `party/index.ts` integrates bot spawning on game start, bot tick movement, bot argument auto-drive, Azure monster reply fire-and-forget upgrade, bot cleanup on game end
+  - `src/components/Lobby.tsx` updated for solo start (min 1 player)
+  - `scripts/verify-phase5-bots.mjs` provides bot authority verification
+  - `scripts/verify-phase5-azure.mjs` provides Azure fallback verification
+  - `doc/verification/phase5-checklist.md` contains gate checklist
+- Gate status:
+  - Static gate: PASS (`verify:phase5:static`)
+  - Bot gate: PASS (`verify:phase5:bots`)
+  - Azure gate: PASS (`verify:phase5:azure`)
+  - Phase 4 regression: PASS (`verify:phase4:authority`)
+  - Phase gate decision: GO (Phase 6 entry unblocked)
 
 ## Phase 6: Deployment and Invite System
 

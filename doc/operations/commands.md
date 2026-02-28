@@ -18,6 +18,7 @@ Command reference for development, static gates, runtime smoke checks, and multi
 - `npm run verify:phase25:static`
 - `npm run verify:phase3:static`
 - `npm run verify:phase4:static`
+- `npm run verify:phase5:static`
 
 ## Phase Runtime/Authority Gates
 
@@ -27,6 +28,8 @@ Command reference for development, static gates, runtime smoke checks, and multi
 - `npm run verify:phase3:runtime-smoke`
 - `npm run verify:phase4:runtime-smoke`
 - `npm run verify:phase4:authority`
+- `npm run verify:phase5:bots`          ← bot spawn, movement, argument auto-resolve
+- `npm run verify:phase5:azure`         ← Azure config detection + deterministic fallback
 
 ## PartyKit
 

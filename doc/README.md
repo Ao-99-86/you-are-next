@@ -28,3 +28,4 @@ Audience: coding agents operating in this repository.
 ## Legacy Notes
 
 - Historical phase plan artifact: `doc/plans/phase4-plan.txt`
+- Phase 5 implementation plan: `doc/plans/phase5-plan.md`

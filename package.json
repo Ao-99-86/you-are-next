@@ -16,6 +16,9 @@
     "verify:phase4:static": "npm run typecheck && npm run build",
     "verify:phase4:authority": "node scripts/verify-phase4-authority.mjs",
     "verify:phase4:runtime-smoke": "node scripts/verify-phase4-runtime-smoke.mjs",
+    "verify:phase5:static": "npm run typecheck && npm run build",
+    "verify:phase5:bots": "node scripts/verify-phase5-bots.mjs",
+    "verify:phase5:azure": "node --import tsx/esm scripts/verify-phase5-azure.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "party:dev": "npx partykit dev",
@@ -39,6 +42,7 @@
     "@vitejs/plugin-react": "^4.0",
     "partykit": "^0.0.108",
     "spectorjs": "^0.9.30",
+    "tsx": "^4.0",
     "typescript": "^5.5",
     "vite": "^6.0"
   }

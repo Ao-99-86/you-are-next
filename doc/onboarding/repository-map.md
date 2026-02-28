@@ -40,6 +40,8 @@ game/
 
 party/
   index.ts
+  aiPlayers.ts       ← Phase 5: bot creation, movement tick, deterministic chat
+  azureChat.ts       ← Phase 5: Azure OpenAI client with fallback
 
 scripts/
   verify-phase1-runtime-smoke.mjs
@@ -48,6 +50,8 @@ scripts/
   verify-phase3-runtime-smoke.mjs
   verify-phase4-authority.mjs
   verify-phase4-runtime-smoke.mjs
+  verify-phase5-bots.mjs         ← Phase 5: bot authority checks
+  verify-phase5-azure.mjs        ← Phase 5: Azure fallback checks
 
 doc/
   verification/
@@ -56,4 +60,5 @@ doc/
     phase25-checklist.md
     phase3-checklist.md
     phase4-checklist.md
+    phase5-checklist.md
 ```

@@ -1,5 +1,7 @@
 import type { Party } from "partykit/server";
 import {
+  BOT_COUNT,
+  BOT_FILL_TO_MAX,
   CATCH_RADIUS,
   FINISH_Z,
   MAP_DEPTH,
@@ -24,11 +26,18 @@ import {
   type ServerMessage,
   type Vec3,
 } from "../game/types";
+import {
+  type BotRecord,
+  createBot,
+  tickBotMovement,
+  resolveBotChatMessage,
+} from "./aiPlayers";
+import { generateBotChatMessage, generateMonsterReply } from "./azureChat";
 
 const TICK_RATE = 20;
 const TICK_MS = 1000 / TICK_RATE;
 const MAX_PLAYERS = 4;
-const MIN_PLAYERS_TO_START = 2;
+const MIN_PLAYERS_TO_START = 1;
 const ASSIST_COOLDOWN_MS = 5000;
 const ASSIST_EFFECT_MS = 2000;
 
@@ -43,6 +52,7 @@ interface PlayerRecord {
   clientId: string; // Stable client identity from browser/session
   connId: string | null;
   name: string;
+  isBot: boolean;
   lifeState: PlayerLifeState;
   position: Vec3;
   yaw: number;
@@ -164,7 +174,7 @@ export default class GameServer implements Party.Server {
     this._broadcastSnapshot();
 
     // Pause tick if room empties.
-    const connectedCount = this._connectedPlayers().length;
+    const connectedCount = this._connectedHumans().length;
     if (connectedCount === 0 && this._tickInterval) {
       clearInterval(this._tickInterval);
       this._tickInterval = null;
@@ -217,7 +227,7 @@ export default class GameServer implements Party.Server {
       return;
     }
 
-    if (this._connectedPlayers().length >= MAX_PLAYERS) {
+    if (this._connectedHumans().length >= MAX_PLAYERS) {
       this._sendError(conn, "ROOM_FULL", "Room is full");
       return;
     }
@@ -228,6 +238,7 @@ export default class GameServer implements Party.Server {
       clientId,
       connId: conn.id,
       name: name || `Player ${this._players.size + 1}`,
+      isBot: false,
       lifeState: "alive",
       position: { x: 0, y: 1.8, z: START_Z },
       yaw: 0,
@@ -264,9 +275,9 @@ export default class GameServer implements Party.Server {
     }
     if (this._phase !== "lobby") return;
 
-    const connected = this._connectedPlayers();
+    const connected = this._connectedHumans();
     if (connected.length < MIN_PLAYERS_TO_START) {
-      this._sendError(conn, "NOT_ENOUGH", "Need at least 2 players");
+      this._sendError(conn, "NOT_ENOUGH", "Need at least 1 player");
       return;
     }
 
@@ -330,6 +341,10 @@ export default class GameServer implements Party.Server {
       return; // stale session
     }
 
+    this._processChatRound(message.trim());
+  }
+
+  private _processChatRound(message: string): void {
     const nowMs = Date.now();
     const trimmed = message.trim();
     this._logicState = gameUpdater(
@@ -388,6 +403,34 @@ export default class GameServer implements Party.Server {
         round: session.currentRound,
         points: session.totalScore,
       });
+
+      // Fire-and-forget Azure monster reply upgrade
+      const currentRound = session.currentRound - 1; // just-resolved round index
+      const roundData = session.rounds[currentRound];
+      if (roundData?.playerMessage && this._argumentState.session) {
+        const sessionRef = this._argumentState.session;
+        generateMonsterReply(
+          currentRound,
+          roundData.playerMessage,
+          roundData.points
+        )
+          .then((llmReply) => {
+            if (
+              llmReply &&
+              this._argumentState.session &&
+              this._argumentState.session.id === sessionRef.id
+            ) {
+              const round = this._argumentState.session.rounds[currentRound];
+              if (round) {
+                round.monsterReply = llmReply;
+                this._broadcastSnapshot();
+              }
+            }
+          })
+          .catch((err) =>
+            console.warn(`[party] Azure monster reply failed: ${String(err)}`)
+          );
+      }
     }
 
     this._broadcastSnapshot();
@@ -414,19 +457,48 @@ export default class GameServer implements Party.Server {
     });
   }
 
+  private _spawnBots(): void {
+    const humanCount = this._connectedHumans().length;
+    const maxBots = BOT_FILL_TO_MAX ? MAX_PLAYERS - humanCount : BOT_COUNT;
+    const botsNeeded = Math.max(0, Math.min(BOT_COUNT, maxBots));
+    const now = Date.now();
+
+    for (let i = 1; i <= botsNeeded; i += 1) {
+      const totalPlayers = humanCount + i;
+      const spawnOffset = (totalPlayers - 1) * 2 - (MAX_PLAYERS - 1);
+      const bot: BotRecord = createBot(i, this.room.id, spawnOffset, now);
+      this._players.set(bot.id, bot as unknown as PlayerRecord);
+    }
+  }
+
+  private _removeBots(): void {
+    for (const [id, player] of this._players) {
+      if (player.isBot) {
+        this._players.delete(id);
+      }
+    }
+  }
+
   private _startGame(): void {
     this._phase = "playing";
     this._result = null;
 
-    const connected = this._connectedPlayers();
+    // Spawn bots before positioning
+    this._spawnBots();
+
+    const allPlayers = [...this._players.values()].filter(
+      (p) => p.connected
+    );
     let i = 0;
-    for (const player of connected) {
-      const offset = (i - (connected.length - 1) / 2) * 2;
+    for (const player of allPlayers) {
+      const offset = (i - (allPlayers.length - 1) / 2) * 2;
       player.position = { x: offset, y: 1.8, z: START_Z };
       player.yaw = 0;
       player.pitch = 0;
       player.lifeState = "alive";
-      player.recatchGraceUntilMs = 0;
+      if (!player.isBot) {
+        player.recatchGraceUntilMs = 0;
+      }
       i += 1;
     }
 
@@ -457,10 +529,19 @@ export default class GameServer implements Party.Server {
     const now = Date.now();
     const dtSeconds = TICK_MS / 1000;
 
+    this._tickBots(dtSeconds, now);
     this._updateMonster(dtSeconds, now);
     this._checkCatch(now);
     this._checkFinishZone();
     this._broadcastSnapshot();
+  }
+
+  private _tickBots(dtSeconds: number, now: number): void {
+    for (const player of this._players.values()) {
+      if (player.isBot && player.lifeState === "alive") {
+        tickBotMovement(player as unknown as BotRecord, dtSeconds, now);
+      }
+    }
   }
 
   private _updateMonster(dtSeconds: number, now: number): void {
@@ -578,6 +659,62 @@ export default class GameServer implements Party.Server {
     }
 
     this._broadcastSnapshot();
+
+    // If the caught player is a bot, drive the argument automatically
+    if (player.isBot) {
+      const sessionId = session?.id ?? "";
+      this._driveBotArgument(player.id, sessionId);
+    }
+  }
+
+  private _driveBotArgument(botPlayerId: string, sessionId: string): void {
+    this._driveBotArgumentAsync(botPlayerId, sessionId).catch((err) =>
+      console.warn(`[party] Bot argument drive failed: ${String(err)}`)
+    );
+  }
+
+  private async _driveBotArgumentAsync(
+    botPlayerId: string,
+    sessionId: string
+  ): Promise<void> {
+    const delay = (ms: number) =>
+      new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+    for (let round = 0; round < 3; round += 1) {
+      await delay(2500);
+
+      // Session-ID guard: abort if session changed
+      if (
+        !this._argumentState.active ||
+        !this._argumentState.session ||
+        this._argumentState.session.id !== sessionId ||
+        this._argumentState.caughtPlayerId !== botPlayerId
+      ) {
+        return;
+      }
+
+      const message = await resolveBotChatMessage(
+        round,
+        generateBotChatMessage
+      );
+
+      // Re-check session after async operation
+      if (
+        !this._argumentState.active ||
+        !this._argumentState.session ||
+        this._argumentState.session.id !== sessionId ||
+        this._argumentState.caughtPlayerId !== botPlayerId
+      ) {
+        return;
+      }
+
+      this._processChatRound(message);
+
+      // If argument resolved (won/lost/reset), stop driving
+      if (!this._argumentState.active) {
+        return;
+      }
+    }
   }
 
   private _checkFinishZone(): void {
@@ -612,6 +749,7 @@ export default class GameServer implements Party.Server {
   }
 
   private _endGame(result: GameResult): void {
+    this._removeBots();
     this._phase = "game_over";
     this._result = result;
 
@@ -630,6 +768,7 @@ export default class GameServer implements Party.Server {
       players.push({
         id: p.id,
         name: p.name,
+        isBot: p.isBot,
         lifeState: p.lifeState,
         position: { ...p.position },
         yaw: p.yaw,
@@ -715,6 +854,10 @@ export default class GameServer implements Party.Server {
     return [...this._players.values()].filter((p) => p.connected);
   }
 
+  private _connectedHumans(): PlayerRecord[] {
+    return [...this._players.values()].filter((p) => p.connected && !p.isBot);
+  }
+
   private _alivePlayers(): PlayerRecord[] {
     return [...this._players.values()].filter(
       (p) => p.lifeState === "alive" && p.connected
@@ -728,7 +871,7 @@ export default class GameServer implements Party.Server {
   }
 
   private _promoteNextHost(): void {
-    const connected = this._connectedPlayers();
+    const connected = this._connectedHumans();
     this._hostId = connected.length > 0 ? connected[0].id : null;
   }
 }

@@ -6,7 +6,7 @@ Fast, reliable startup for coding agents modifying runtime, gameplay, or multipl
 
 ## Project Context
 
-Build an over-the-shoulder 3D multiplayer horror game where 2-4 players run through a dark forest while being chased by a monster. If the monster catches a player, the player enters a text argument sequence; winning frees the player, losing gets them eaten.
+Build an over-the-shoulder 3D multiplayer horror game where 1-4 players run through a dark forest while being chased by a monster. Empty lobby slots are filled with server-side AI bots. If the monster catches a player (or bot), they enter a text argument sequence; winning frees the player, losing gets them eaten. Monster dialogue is upgraded with Azure OpenAI replies when configured.
 
 ## Product Constraints
 
@@ -37,7 +37,8 @@ Server-side placeholders:
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_API_KEY`
 - `AZURE_OPENAI_DEPLOYMENT_NAME`
-- `AZURE_OPENAI_API_VERSION`
+
+Note: Azure integration uses GA v1 path (`/openai/v1/chat/completions`) — no `api-version` query param needed.
 
 Other config:
 
