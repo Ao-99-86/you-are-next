@@ -9,6 +9,9 @@ import {
   ExecuteCodeAction,
   Scalar,
   Ray,
+  Mesh,
+  StandardMaterial,
+  Color3,
 } from "@babylonjs/core";
 import {
   PLAYER_SPEED,
@@ -32,6 +35,7 @@ export class PlayerController {
   private _camRoot: TransformNode;
   private _yTilt: TransformNode;
   private _camera: UniversalCamera;
+  private _viewModel: Mesh;
 
   // Input state
   private _keys: Record<string, boolean> = {};
@@ -133,6 +137,15 @@ export class PlayerController {
     this._camera.minZ = 0.05;
     this._camera.maxZ = 1000;
     scene.activeCamera = this._camera;
+
+    // View-Model (Retro HUD weapon/hand)
+    this._viewModel = MeshBuilder.CreatePlane("viewModel", { width: 0.6, height: 0.8 }, scene);
+    this._viewModel.parent = this._camera;
+    this._viewModel.position = new Vector3(0.5, -0.4, 1.2);
+    const vmMat = new StandardMaterial("vmMat", scene);
+    vmMat.diffuseColor = new Color3(0.15, 0.15, 0.15);
+    vmMat.emissiveColor = new Color3(0.05, 0.05, 0.05);
+    this._viewModel.material = vmMat;
 
     // Detach default camera controls so we own movement + look.
     this._camera.inputs.clear();
@@ -311,6 +324,18 @@ export class PlayerController {
       }
     }
     this._camRoot.position.y += this._bobOffset;
+
+    // View-model sway & bob
+    if (this._viewModel) {
+      const t = performance.now() / 1000;
+      const idleSwayX = Math.sin(t * 1.2) * 0.01;
+      const idleSwayY = Math.cos(t * 1.8) * 0.015;
+      
+      const targetSwayX = 0.5 - this._inputH * 0.05 + idleSwayX;
+      const targetSwayY = -0.4 - this._inputV * 0.05 + Math.abs(this._bobOffset) * 0.5 + idleSwayY;
+      this._viewModel.position.x = Scalar.Lerp(this._viewModel.position.x, targetSwayX, 0.15);
+      this._viewModel.position.y = Scalar.Lerp(this._viewModel.position.y, targetSwayY, 0.15);
+    }
   }
 
   private _updateShake(): void {

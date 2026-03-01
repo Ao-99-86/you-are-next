@@ -13,11 +13,15 @@ import {
   createRockTexture,
 } from "./ProceduralTextures";
 
-function darkPBR(name: string, scene: Scene): PBRMaterial {
+function spritePBR(name: string, scene: Scene): PBRMaterial {
   const mat = new PBRMaterial(name, scene);
   mat.albedoColor = Color3.White();
-  mat.roughness = 0.95;
+  mat.roughness = 1.0;
   mat.metallic = 0;
+  mat.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHATEST;
+  mat.alphaCutOff = 0.1;
+  mat.useAlphaFromAlbedoTexture = true;
+  mat.backFaceCulling = false;
   return mat;
 }
 
@@ -28,7 +32,7 @@ let _rockMat: PBRMaterial | null = null;
 
 function barkMat(scene: Scene) {
   if (!_barkMat || _barkMat.getScene() !== scene) {
-    _barkMat = darkPBR("bark", scene);
+    _barkMat = spritePBR("bark", scene);
     _barkMat.albedoTexture = createBarkTexture(scene);
   }
   return _barkMat;
@@ -36,7 +40,7 @@ function barkMat(scene: Scene) {
 
 function canopyMat(scene: Scene) {
   if (!_canopyMat || _canopyMat.getScene() !== scene) {
-    _canopyMat = darkPBR("canopy", scene);
+    _canopyMat = spritePBR("canopy", scene);
     _canopyMat.albedoTexture = createCanopyTexture(scene);
   }
   return _canopyMat;
@@ -44,7 +48,10 @@ function canopyMat(scene: Scene) {
 
 function groundMat(scene: Scene) {
   if (!_groundMat || _groundMat.getScene() !== scene) {
-    _groundMat = darkPBR("ground", scene);
+    _groundMat = new PBRMaterial("ground", scene);
+    _groundMat.albedoColor = Color3.White();
+    _groundMat.roughness = 0.95;
+    _groundMat.metallic = 0;
     _groundMat.albedoTexture = createGroundTexture(scene);
   }
   return _groundMat;
@@ -52,7 +59,7 @@ function groundMat(scene: Scene) {
 
 function rockMat(scene: Scene) {
   if (!_rockMat || _rockMat.getScene() !== scene) {
-    _rockMat = darkPBR("rock", scene);
+    _rockMat = spritePBR("rock", scene);
     _rockMat.albedoTexture = createRockTexture(scene);
   }
   return _rockMat;
@@ -77,24 +84,27 @@ export function createTree(
   const node = new TransformNode(`tree_${x}_${z}`, scene);
   node.parent = parent;
 
-  const trunk = MeshBuilder.CreateCylinder(
+  // Use planes with billboard mode for retro look
+  const trunk = MeshBuilder.CreatePlane(
     "trunk",
-    { diameter: radius * 2, height, tessellation: 6 },
+    { width: radius * 3, height },
     scene
   );
   trunk.position.set(x, height / 2, z);
   trunk.material = barkMat(scene);
+  trunk.billboardMode = Mesh.BILLBOARDMODE_Y;
   trunk.checkCollisions = true;
   trunk.parent = node;
 
-  const canopySize = radius * 3 + Math.random() * radius;
-  const canopy = MeshBuilder.CreateSphere(
+  const canopySize = radius * 4 + Math.random() * radius;
+  const canopy = MeshBuilder.CreatePlane(
     "canopy",
-    { diameter: canopySize * 2, segments: 4 },
+    { width: canopySize * 1.5, height: canopySize },
     scene
   );
-  canopy.position.set(x, height + canopySize * 0.5, z);
+  canopy.position.set(x, height + canopySize * 0.3, z);
   canopy.material = canopyMat(scene);
+  canopy.billboardMode = Mesh.BILLBOARDMODE_Y;
   canopy.checkCollisions = false;
   canopy.parent = node;
 
@@ -108,14 +118,14 @@ export function createRock(
   size: number,
   parent: TransformNode
 ): Mesh {
-  const rock = MeshBuilder.CreateSphere(
+  const rock = MeshBuilder.CreatePlane(
     "rock",
-    { diameter: size, segments: 3 },
+    { width: size * 1.5, height: size * 1.2 },
     scene
   );
-  rock.position.set(x, size * 0.3, z);
-  rock.scaling.y = 0.6;
+  rock.position.set(x, size * 0.5, z);
   rock.material = rockMat(scene);
+  rock.billboardMode = Mesh.BILLBOARDMODE_Y;
   rock.checkCollisions = true;
   rock.parent = parent;
   return rock;
@@ -129,14 +139,19 @@ export function createFallenLog(
   rotation: number,
   parent: TransformNode
 ): Mesh {
-  const log = MeshBuilder.CreateCylinder(
+  const logSize = 0.8 + Math.random() * 0.4;
+  const log = MeshBuilder.CreatePlane(
     "fallenLog",
-    { diameter: 0.4 + Math.random() * 0.3, height: length, tessellation: 6 },
+    { width: length, height: logSize },
     scene
   );
-  log.position.set(x, 0.2, z);
-  log.rotation.z = Math.PI / 2;
-  log.rotation.y = rotation;
+  log.position.set(x, logSize / 2, z);
+  
+  // For logs, billboarding might look weird since they lie on ground.
+  // Instead, just make them stand up as flat planes, or rotate them to face camera slightly.
+  // For true retro 2.5D, they are billboarded or flat on ground. Let's billboard Y.
+  log.billboardMode = Mesh.BILLBOARDMODE_Y;
+  
   log.material = barkMat(scene);
   log.checkCollisions = true;
   log.parent = parent;

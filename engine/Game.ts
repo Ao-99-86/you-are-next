@@ -63,6 +63,9 @@ export class Game {
       stencil: true,
       audioEngine: true,
     });
+    
+    // Enforce low internal render resolution for a retro aesthetic
+    this._engine.setHardwareScalingLevel(2);
   }
 
   async start(): Promise<void> {

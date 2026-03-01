@@ -1,6 +1,6 @@
 // Map dimensions
-export const MAP_WIDTH = 100;
-export const MAP_DEPTH = 300;
+export const MAP_WIDTH = 60;
+export const MAP_DEPTH = 500;
 
 // Player
 export const PLAYER_SPEED = 0.45;
@@ -28,20 +28,21 @@ export const CAMERA_PITCH_MAX = 0.75;
 export const LOOKSPRING_STRENGTH = 0.045;
 
 // Forest
-export const TREE_COUNT = 150;
+export const TREE_COUNT = 350;
 export const TREE_MIN_RADIUS = 0.3;
 export const TREE_MAX_RADIUS = 0.8;
 export const TREE_MIN_HEIGHT = 3;
 export const TREE_MAX_HEIGHT = 7;
 export const TREE_SPACING = 2.5; // minimum distance between trees
-export const CORRIDOR_WIDTH = 6; // clearance along center path
+export const CORRIDOR_WIDTH = 5; // clearance along center path
+export const CORRIDOR_AMPLITUDE = 6; // sinusoidal path swing
 
 // Zones (z-axis positions)
 export const START_Z = -(MAP_DEPTH / 2 - 20);
 export const FINISH_Z = MAP_DEPTH / 2 - 10;
 
 // Fog
-export const FOG_DENSITY = 0.035;
+export const FOG_DENSITY = 0.015;
 
 // Gravity
 export const GRAVITY = -2.8;
@@ -50,10 +51,13 @@ export const GRAVITY = -2.8;
 export const TEXTURE_SIZE = 64;
 
 // Phase 3 — Lighting
-export const HEMI_INTENSITY = 0.3;
+export const HEMI_INTENSITY = 1.0;
 export const SHADOW_MAP_SIZE = 1024;
-export const FLICKER_LIGHT_COUNT = 6;
+export const FLICKER_LIGHT_COUNT = 10;
 export const FLICKER_LIGHT_RANGE = 18;
+export const THUNDER_INTERVAL_MIN_MS = 5000;
+export const THUNDER_INTERVAL_MAX_MS = 15000;
+export const THUNDER_FLASH_DURATION_MS = 150;
 
 // Phase 3 — Post-processing
 export const GRAIN_INTENSITY = 25;

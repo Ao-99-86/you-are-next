@@ -4,7 +4,6 @@ import {
   MeshBuilder,
   PBRMaterial,
   Scene,
-  StandardMaterial,
   Vector3,
 } from "@babylonjs/core";
 import { MONSTER_DETECT_RANGE, MONSTER_SPEED } from "../game/constants";
@@ -19,9 +18,7 @@ function planarDistance(a: Vector3, b: Vector3): number {
 
 export class Monster {
   private _body: Mesh;
-  private _head: Mesh;
-  private _armL: Mesh;
-  private _armR: Mesh;
+  private _sprite: Mesh;
   private _state: MonsterState = "patrol";
   private _frozen = false;
   private _patrolIndex = 0;
@@ -40,70 +37,33 @@ export class Monster {
   }
 
   constructor(private _scene: Scene, start: Vector3) {
-    // Monster body material with procedural texture
-    const bodyMat = new PBRMaterial("monsterBodyMat", _scene);
-    bodyMat.albedoColor = Color3.White();
-    bodyMat.albedoTexture = createMonsterTexture(_scene);
-    bodyMat.roughness = 1;
-    bodyMat.metallic = 0;
-
-    // Tapered body cylinder
+    // Monster body collision proxy (invisible cylinder)
     this._body = MeshBuilder.CreateCylinder(
       "monsterBody",
-      { diameterTop: 1.0, diameterBottom: 1.4, height: 3.2, tessellation: 8 },
+      { diameter: 1.2, height: 3.2, tessellation: 8 },
       _scene
     );
     this._body.position = new Vector3(start.x, 1.6, start.z);
     this._body.checkCollisions = true;
     this._body.ellipsoid = new Vector3(0.7, 1.6, 0.7);
-    this._body.material = bodyMat;
+    this._body.isVisible = false; // Collision only
 
-    // Low-poly IcoSphere head
-    this._head = MeshBuilder.CreateIcoSphere(
-      "monsterHead",
-      { radius: 0.5, subdivisions: 1, flat: true },
-      _scene
-    );
-    this._head.parent = this._body;
-    this._head.position = new Vector3(0, 1.9, 0);
-    this._head.scaling.y = 0.8;
-    this._head.material = bodyMat;
+    // Billboard sprite for visuals
+    const spriteMat = new PBRMaterial("monsterSpriteMat", _scene);
+    spriteMat.albedoColor = Color3.White();
+    spriteMat.albedoTexture = createMonsterTexture(_scene);
+    spriteMat.roughness = 1;
+    spriteMat.metallic = 0;
+    spriteMat.transparencyMode = PBRMaterial.PBRMATERIAL_ALPHATEST;
+    spriteMat.alphaCutOff = 0.1;
+    spriteMat.useAlphaFromAlbedoTexture = true;
+    spriteMat.backFaceCulling = false;
 
-    // Tendril arms
-    this._armL = MeshBuilder.CreateBox(
-      "monsterArmL",
-      { width: 0.15, height: 2.0, depth: 0.15 },
-      _scene
-    );
-    this._armL.parent = this._body;
-    this._armL.position = new Vector3(-0.65, 0.3, 0);
-    this._armL.rotation.z = 0.15;
-    this._armL.material = bodyMat;
-
-    this._armR = MeshBuilder.CreateBox(
-      "monsterArmR",
-      { width: 0.15, height: 2.0, depth: 0.15 },
-      _scene
-    );
-    this._armR.parent = this._body;
-    this._armR.position = new Vector3(0.65, 0.3, 0);
-    this._armR.rotation.z = -0.15;
-    this._armR.material = bodyMat;
-
-    // Glowing red eyes on head
-    const eyeMat = new StandardMaterial("monsterEyeMat", _scene);
-    eyeMat.diffuseColor = new Color3(0.4, 0.02, 0.02);
-    eyeMat.emissiveColor = new Color3(1, 0.1, 0.1);
-
-    const leftEye = MeshBuilder.CreateSphere("monsterEyeL", { diameter: 0.28 }, _scene);
-    leftEye.parent = this._head;
-    leftEye.position = new Vector3(-0.2, -0.05, 0.4);
-    leftEye.material = eyeMat;
-
-    const rightEye = MeshBuilder.CreateSphere("monsterEyeR", { diameter: 0.28 }, _scene);
-    rightEye.parent = this._head;
-    rightEye.position = new Vector3(0.2, -0.05, 0.4);
-    rightEye.material = eyeMat;
+    this._sprite = MeshBuilder.CreatePlane("monsterSprite", { width: 3, height: 4 }, _scene);
+    this._sprite.parent = this._body;
+    this._sprite.position = new Vector3(0, 0.4, 0); // Offset up slightly
+    this._sprite.material = spriteMat;
+    this._sprite.billboardMode = Mesh.BILLBOARDMODE_Y;
 
     this._patrolPoints = [
       new Vector3(start.x - 8, this._body.position.y, start.z - 10),
@@ -143,11 +103,14 @@ export class Monster {
       this._body.rotation.y = Math.atan2(move.x, move.z);
     }
 
-    // Subtle idle animation
+    // Sprite bobbing animation
     const t = performance.now() / 1000;
-    this._head.position.y = 1.9 + Math.sin(t * 2) * 0.03;
-    this._armL.rotation.z = 0.15 + Math.sin(t * 1.5) * 0.05;
-    this._armR.rotation.z = -0.15 + Math.sin(t * 1.5 + 1) * 0.05;
+    const isMoving = len > 0.001;
+    if (isMoving) {
+      this._sprite.position.y = 0.4 + Math.abs(Math.sin(t * 8)) * 0.15;
+    } else {
+      this._sprite.position.y = 0.4 + Math.sin(t * 2) * 0.05;
+    }
   }
 
   distanceToPlayer(playerPos: Vector3): number {

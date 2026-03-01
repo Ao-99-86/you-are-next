@@ -231,3 +231,24 @@ Decision rationale:
 - All required Phase 3 checklist items are complete and previously identified blockers are fixed/re-tested.
 - Latest gate command re-runs are passing (`verify:phase3:static`, `verify:phase3:runtime-smoke`) as of `2026-02-24 23:24-23:25 PST`.
 - Phase 4 is unblocked and may start.
+
+## Subsequent Drifts (Post-Phase 6 Overhaul — `2026-02-28`)
+
+The following constants and implementations have changed since this gate was closed. The gate decision remains GO; these are recorded for traceability only.
+
+| Item | Gate value | Current value |
+| --- | --- | --- |
+| `MAP_WIDTH` | 100 | 60 |
+| `MAP_DEPTH` | 300 | 500 |
+| `FOG_DENSITY` | 0.035 (at gate) / 0.02 (pre-overhaul) | 0.015 |
+| `fogColor` | `(0.05, 0.05, 0.07)` (at gate) / `(0.02, 0.02, 0.03)` (pre-overhaul) | `(0.08, 0.10, 0.15)` |
+| `HEMI_INTENSITY` | 0.5 | 1.0 |
+| `FLICKER_LIGHT_COUNT` | 6 | 10 |
+| `TREE_COUNT` | 150 | 350 |
+| `CORRIDOR_WIDTH` | 6 | 5 |
+| Sky texture | Flat blood-red base | Navy-to-fog vertical gradient |
+| Rain particles | None | Added (`ParticleSystem`, 5000 cap, 3000/frame) |
+| Thunder | None | Random directional light flashes (5–15 s interval, 150 ms, intensity 6.0) |
+| Visible path | None | Emissive plane segments along sinusoidal corridor |
+
+Full change details in `doc/roadmap/phase-details.md` — "Post-Phase 6: Visual & Gameplay Overhaul".

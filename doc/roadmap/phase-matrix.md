@@ -21,6 +21,7 @@ As of `2026-02-28`:
 - Phase 6 invite gate: PASS (`verify:phase6:invite`)
 - Phase 6 Phase-5 regression gates: PASS (`verify:phase5:static`, `verify:phase5:bots`, `verify:phase5:azure`)
 - Phase 6 gate decision: GO (`doc/verification/phase6-checklist.md`)
+- Post-Phase 6 visual/gameplay overhaul: applied `2026-02-28` — typecheck PASS, runtime verified via Chrome DevTools MCP (see `doc/roadmap/phase-details.md` "Post-Phase 6" section).
 
 Current open items:
 
@@ -37,3 +38,4 @@ Current open items:
 | 4 | Multiplayer (PartyKit) | Complete | GO (`doc/verification/phase4-checklist.md`) |
 | 5 | AI players + Azure LLM chat | Complete | GO (`doc/verification/phase5-checklist.md`) |
 | 6 | Deployment + invite gating | Complete | GO (`doc/verification/phase6-checklist.md`) |
+| Post-6 | Visual & gameplay overhaul | Complete | typecheck PASS; runtime verified `2026-02-28` |

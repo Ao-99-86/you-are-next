@@ -252,3 +252,57 @@ Implementation status (actual):
   - Phase 5 regression: PASS (`verify:phase5:static`, `verify:phase5:bots`, `verify:phase5:azure`)
   - Phase gate decision: GO (`doc/verification/phase6-checklist.md`)
   - Manual deployment checklist execution remains operator-owned.
+
+## Post-Phase 6: Visual & Gameplay Overhaul
+
+Goal:
+
+- Improve visibility (scene was near-pitch-black), create sky/ground sense of scale, lengthen and narrow the level, densify the forest, add a visible winding path, and add rain and thunder weather effects.
+
+Changes applied `2026-02-28`:
+
+### `game/constants.ts`
+
+| Constant | Old | New | Reason |
+| --- | --- | --- | --- |
+| `MAP_WIDTH` | 100 | 60 | Narrower level — tighter corridor run |
+| `MAP_DEPTH` | 300 | 500 | Longer level — extended run to exit |
+| `TREE_COUNT` | 150 | 350 | Denser forest proportional to new area |
+| `CORRIDOR_WIDTH` | 6 | 5 | Tighter path fits narrower map |
+| `FOG_DENSITY` | 0.02 | 0.015 | Slight visibility increase for depth perception |
+| `HEMI_INTENSITY` | 0.5 | 1.0 | Brighter ambient so scene is navigable |
+| `FLICKER_LIGHT_COUNT` | 6 | 10 | More lights to cover longer level |
+| `CORRIDOR_AMPLITUDE` | — | 6 | New: sinusoidal path swing (replaces hardcoded `8`) |
+| `THUNDER_INTERVAL_MIN_MS` | — | 5000 | New: minimum ms between lightning flashes |
+| `THUNDER_INTERVAL_MAX_MS` | — | 15000 | New: maximum ms between lightning flashes |
+| `THUNDER_FLASH_DURATION_MS` | — | 150 | New: duration of each flash |
+
+`START_Z` and `FINISH_Z` are derived from `MAP_DEPTH` and update automatically. Goal distance changed from 270 m to 470 m.
+
+### `engine/Lighting.ts`
+
+- Hemisphere light: intensity `0.5 → 1.0`, diffuse shifted to stormy blue-purple `(0.5, 0.58, 0.80)`, ground color `(0.15, 0.15, 0.20)`.
+- Directional light: intensity `0.6 → 1.2`, diffuse cool blue-white `(0.65, 0.72, 0.95)`.
+- Fog color: `(0.02, 0.02, 0.03)` → `(0.08, 0.10, 0.15)` — dark stormy blue-gray (was pure black).
+- Scene clear color updated to match fog.
+- Scene ambient color: `(0.1, 0.1, 0.12)` → `(0.20, 0.20, 0.25)`.
+- Flicker light positions now use `CORRIDOR_AMPLITUDE` constant (was hardcoded `8`).
+- `LightingRig` interface extended with `dirLight: DirectionalLight` and `thunderState: ThunderState`.
+- `updateLights()` now drives random lightning flashes: detects `nextFlashMs`, spikes `dirLight.intensity` to `6.0` for `THUNDER_FLASH_DURATION_MS`, then restores base intensity.
+
+### `engine/ProceduralTextures.ts`
+
+- `createSkyTexture()`: replaced flat blood-red base with a vertical gradient — deep navy `rgb(8, 10, 30)` at zenith transitioning to fog-matching dark blue-gray `rgb(20, 26, 38)` at the horizon. Storm clouds shifted to blue-gray tones. Blood moon retained. Gradient ensures sky bottom blends into fog for a sense of towering height.
+- Added `createRainTexture()`: 4×16 pixel streak texture with a sine-shaped alpha gradient, yielding a natural rain-drop appearance.
+
+### `engine/ForestMap.ts`
+
+- All three corridor center calculations (`* 8`) replaced with `* CORRIDOR_AMPLITUDE` (constant import).
+- Sky dome diameter: `MAP_DEPTH * 1.5` → `Math.max(MAP_WIDTH, MAP_DEPTH) * 1.5` to cover the now-longer map.
+- Added visible winding path: series of `MeshBuilder.CreatePlane` segments every 8 units along the Z axis, each positioned at the sinusoidal corridor centre and slightly elevated (`y = 0.02`) to float above the ground. Emissive mud-brown material (`disableLighting = true`) ensures visibility regardless of light levels.
+- Added rain `ParticleSystem` ("rain", 5000 capacity): emits from `y = 30` across the full map footprint, gravity-driven downward with slight lateral drift, 3000 particles/frame, blue-white streak texture, 1.2–2.5 s lifetime.
+
+### Verification evidence
+
+- `npm run typecheck` — PASS (`2026-02-28`)
+- Chrome DevTools MCP screenshot at `2026-02-28`: scene clearly visible with trees, winding path, dark blue-gray fog, sky/ground contrast, rain particles (small blue-white dots), 60 FPS maintained, HUD showing GOAL: 470.0 m.
