@@ -18,7 +18,7 @@ Audience: coding agents operating in this repository.
 6. [Multiplayer Authority](./architecture/multiplayer-authority.md)
 7. [Phase Matrix](./roadmap/phase-matrix.md)
 8. [Phase Details](./roadmap/phase-details.md)
-9. [Active TODO Queue](./roadmap/todo-queue.md)
+9. [Phase 6 Gate + Deployment Checklist](./verification/phase6-checklist.md)
 10. [Commands](./operations/commands.md)
 11. [Verification Framework](./operations/verification-framework.md)
 12. [Workflow Contract](./operations/workflow-contract.md)
@@ -27,5 +27,5 @@ Audience: coding agents operating in this repository.
 
 ## Legacy Notes
 
-- Historical phase plan artifact: `doc/plans/phase4-plan.txt`
-- Phase 5 implementation plan: `doc/plans/phase5-plan.md`
+- Historical phase plan artifact (archival; may contain outdated interim status): `doc/plans/phase4-plan.txt`
+- Phase 5 implementation plan (archival; may contain outdated interim status): `doc/plans/phase5-plan.md`

@@ -2,7 +2,7 @@
 
 ## Latest Verified State
 
-As of `2026-02-27`:
+As of `2026-02-28`:
 
 - Phase 1 gate: GO (`doc/verification/phase1-checklist.md`)
 - Phase 2 gate: GO (`doc/verification/phase2-checklist.md`)
@@ -17,10 +17,14 @@ As of `2026-02-27`:
 - Phase 5 bot gate: PASS (`verify:phase5:bots`)
 - Phase 5 azure gate: PASS (`verify:phase5:azure`)
 - Phase 5 gate decision: GO (`doc/verification/phase5-checklist.md`)
+- Phase 6 static gate: PASS (`verify:phase6:static`)
+- Phase 6 invite gate: PASS (`verify:phase6:invite`)
+- Phase 6 Phase-5 regression gates: PASS (`verify:phase5:static`, `verify:phase5:bots`, `verify:phase5:azure`)
+- Phase 6 gate decision: GO (`doc/verification/phase6-checklist.md`)
 
 Current open items:
 
-- Phase 6 implementation in progress. Invite gating code complete; awaiting verification gates and deployment.
+- Manual deployment checklist execution remains operator-owned (`doc/verification/phase6-checklist.md`).
 
 ## Matrix
 
@@ -32,4 +36,4 @@ Current open items:
 | 3 | Polish and atmosphere | Complete | GO (`doc/verification/phase3-checklist.md`) |
 | 4 | Multiplayer (PartyKit) | Complete | GO (`doc/verification/phase4-checklist.md`) |
 | 5 | AI players + Azure LLM chat | Complete | GO (`doc/verification/phase5-checklist.md`) |
-| 6 | Deployment + invite gating | In progress | Pending (`doc/verification/phase6-checklist.md`) |
+| 6 | Deployment + invite gating | Complete | GO (`doc/verification/phase6-checklist.md`) |

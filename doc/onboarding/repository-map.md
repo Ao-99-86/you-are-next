@@ -52,8 +52,12 @@ scripts/
   verify-phase4-runtime-smoke.mjs
   verify-phase5-bots.mjs         ← Phase 5: bot authority checks
   verify-phase5-azure.mjs        ← Phase 5: Azure fallback checks
+  verify-phase6-invite.mjs       ← Phase 6: invite gating checks
 
 doc/
+  roadmap/
+    phase-matrix.md
+    phase-details.md
   verification/
     phase1-checklist.md
     phase2-checklist.md
@@ -61,4 +65,5 @@ doc/
     phase3-checklist.md
     phase4-checklist.md
     phase5-checklist.md
+    phase6-checklist.md
 ```

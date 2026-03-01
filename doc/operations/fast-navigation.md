@@ -13,4 +13,4 @@
 - Network hook: `src/hooks/useGameRoom.ts`
 - Lobby: `src/components/Lobby.tsx`
 - Authoritative server: `party/index.ts`
-- Current gate status: `doc/verification/phase4-checklist.md`
+- Current gate status: `doc/roadmap/phase-matrix.md`

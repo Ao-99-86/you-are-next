@@ -153,7 +153,7 @@ Mirrors `phase4-checklist.md` structure. Sections:
 ### 10. Doc updates
 
 - `doc/roadmap/phase-matrix.md` — Phase 5 row: `Not started` → `In Progress` (then `Complete` after GO)
-- `doc/roadmap/todo-queue.md` — Replace Phase 5 queue with Phase 6 queue
+- `doc/verification/phase6-checklist.md` — Use as the canonical Phase 6 gate + deployment checklist
 - `doc/roadmap/phase-details.md` — Update Phase 5 implementation status block
 
 ---

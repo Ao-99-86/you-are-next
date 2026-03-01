@@ -29,6 +29,9 @@ After each phase implementation:
 - `scripts/verify-phase3-runtime-smoke.mjs`
 - `scripts/verify-phase4-runtime-smoke.mjs`
 - `scripts/verify-phase4-authority.mjs`
+- `scripts/verify-phase5-bots.mjs`
+- `scripts/verify-phase5-azure.mjs`
+- `scripts/verify-phase6-invite.mjs`
 - phase-specific manual/MCP checks documented in `doc/verification/phaseX-checklist.md`
 
 ## Current Checklists
@@ -38,3 +41,5 @@ After each phase implementation:
 - `doc/verification/phase25-checklist.md`
 - `doc/verification/phase3-checklist.md`
 - `doc/verification/phase4-checklist.md`
+- `doc/verification/phase5-checklist.md`
+- `doc/verification/phase6-checklist.md`

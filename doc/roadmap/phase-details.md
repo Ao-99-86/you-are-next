@@ -130,7 +130,7 @@ Implementation status (actual):
   - Static gate PASS
   - Automated runtime gate PASS
   - Manual/runtime evidence captured in checklist
-  - GO for Phase 4 entry (current)
+  - GO for Phase 4 entry
 
 ## Phase 4: Multiplayer (PartyKit)
 
@@ -247,4 +247,8 @@ Implementation status (actual):
   - `scripts/verify-phase6-invite.mjs` provides invite gating verification (spawns PartyKit with `INVITE_SECRET`, tests reject/accept)
   - `doc/verification/phase6-checklist.md` contains gate checklist
 - Gate status:
-  - Awaiting verification gates and deployment.
+  - Static gate: PASS (`verify:phase6:static`)
+  - Invite gate: PASS (`verify:phase6:invite`)
+  - Phase 5 regression: PASS (`verify:phase5:static`, `verify:phase5:bots`, `verify:phase5:azure`)
+  - Phase gate decision: GO (`doc/verification/phase6-checklist.md`)
+  - Manual deployment checklist execution remains operator-owned.

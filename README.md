@@ -22,7 +22,7 @@ Coding agents modifying implementation, verification gates, and phase tracking.
 7. [Multiplayer Authority](./doc/architecture/multiplayer-authority.md)
 8. [Phase Matrix](./doc/roadmap/phase-matrix.md)
 9. [Phase Details](./doc/roadmap/phase-details.md)
-10. [Active TODO Queue](./doc/roadmap/todo-queue.md)
+10. [Phase 6 Gate + Deployment Checklist](./doc/verification/phase6-checklist.md)
 11. [Commands](./doc/operations/commands.md)
 12. [Verification Framework](./doc/operations/verification-framework.md)
 13. [Workflow Contract](./doc/operations/workflow-contract.md)
