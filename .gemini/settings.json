@@ -3,6 +3,16 @@
     "mslearn-docs": {
       "url": "https://learn.microsoft.com/api/mcp",
       "type": "http"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "babylon-mcp": {
+      "command": "http://localhost:4000/mcp",
+      "args": []
     }
   }
 }
